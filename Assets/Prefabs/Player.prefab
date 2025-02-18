@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2321426965256104409}
   - component: {fileID: 1819314011556030186}
   - component: {fileID: 5436295786704037409}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: HealthBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,7 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7624805397459928557}
   - component: {fileID: 5007238159271982730}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TankPivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -154,7 +154,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5136099974870495776}
   - component: {fileID: 1889849344446730971}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Turrent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -244,7 +244,7 @@ GameObject:
   - component: {fileID: 1045934077256075356}
   - component: {fileID: 2528670067562116251}
   - component: {fileID: 5047463373513935392}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: OverheadCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -322,7 +322,7 @@ GameObject:
   - component: {fileID: 6806293429778801735}
   - component: {fileID: 8782517224908841529}
   - component: {fileID: 8179043109188530694}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TankTrades
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -493,7 +493,7 @@ GameObject:
   - component: {fileID: 8274048840423834804}
   - component: {fileID: 5002957379664668095}
   - component: {fileID: 680973710074015685}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: HealthBarBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -566,7 +566,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4283456906621594102}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -604,7 +604,7 @@ GameObject:
   - component: {fileID: 4904728462311106574}
   - component: {fileID: 2890063289542847204}
   - component: {fileID: 2111148386687699822}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -733,7 +733,7 @@ MonoBehaviour:
   inputReader: {fileID: 11400000, guid: 0e0079011af07bb479718e2e29be1b85, type: 2}
   bodyTransform: {fileID: 3252191666576036223}
   rb: {fileID: 8727660752811847354}
-  movementSpeed: 5
+  movementSpeed: 10
   turningRate: 270
 --- !u!114 &4904728462311106574
 MonoBehaviour:
@@ -798,7 +798,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2843993332461497982}
   - component: {fileID: 7987628916544121944}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MuzzleFlash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -885,7 +885,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8041884250515589467}
   - component: {fileID: 648568314814886537}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TankBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}

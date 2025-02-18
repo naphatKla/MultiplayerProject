@@ -16,6 +16,6 @@ public class TestScript : MonoBehaviour
     
     private void HandleMove(Vector2 movement)
     {
-        Debug.Log(movement);
+        
     }
 }

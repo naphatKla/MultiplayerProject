@@ -687,11 +687,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: cfa04cd6-3820-4b6c-8a6d-ec11dccd93b0
+  cloudProjectId: c8b68267-2feb-4c48-ae33-5c9f4cdd5784
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: TankArena_329B
-  organizationId: unity_621b5081a6ab86deb8a4
+  projectName: TankArena_329B (1)
+  organizationId: unity_f0db8655632ece8c2012
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

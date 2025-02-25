@@ -9,9 +9,16 @@ public class MainMenu : MonoBehaviour
 
     public async void StartHost()
     {
-        if (string.IsNullOrEmpty(nameInputField.text)) { return; }
+        if (string.IsNullOrEmpty(nameInputField.text))
+        {
+            Debug.LogWarning("Please enter a name!");
+            return;
+        }
+
+        byte[] connectionData = System.Text.Encoding.UTF8.GetBytes(nameInputField.text);
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = connectionData;
+
         await HostSingleton.Instance.CreateHost();
-        HostSingleton.Instance.GameManager.SetPlayerName(NetworkManager.Singleton.LocalClientId, nameInputField.text);
     }
 
     public async void StartClient()
@@ -27,12 +34,11 @@ public class MainMenu : MonoBehaviour
             Debug.LogWarning("Please enter a lobby code!");
             return;
         }
-        
-        Debug.Log($"StartClient - Player name entered: {nameInputField.text}");
-        
+
+        byte[] connectionData = System.Text.Encoding.UTF8.GetBytes(nameInputField.text);
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = connectionData;
+
         await ClientSingleton.Instance.CreateClient();
-        ClientSingleton.Instance.GameManager.SetPlayerName(NetworkManager.Singleton.LocalClientId, nameInputField.text);
-        
         await ClientSingleton.Instance.GameManager.StartClientAsync(joinCodeField.text);
     }
 }

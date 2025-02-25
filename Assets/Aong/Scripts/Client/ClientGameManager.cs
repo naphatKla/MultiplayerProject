@@ -49,18 +49,9 @@ public class ClientGameManager : NetworkBehaviour
         RelayServerData relayServerData = allocation.ToRelayServerData("dtls");
         transport.SetRelayServerData(relayServerData);
         
-        byte[] connectionData = System.Text.Encoding.UTF8.GetBytes("ClientConnection");
-        NetworkManager.Singleton.NetworkConfig.ConnectionData = connectionData;
         NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
 
         NetworkManager.Singleton.StartClient();
     }
-    
-    public void SetPlayerName(ulong clientId, string name)
-    {
-        if (NetworkManager.Singleton.IsClient)
-        {
-            HostSingleton.Instance.GameManager.SetPlayerName(clientId, name);
-        }
-    }
+
 }

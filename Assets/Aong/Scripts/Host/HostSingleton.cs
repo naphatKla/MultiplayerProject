@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Unity.Netcode;
 using UnityEngine;
 
 public class HostSingleton : MonoBehaviour
@@ -37,6 +38,7 @@ public class HostSingleton : MonoBehaviour
     private void SetupGameManager()
     {
         GameObject gameManagerObj = new GameObject("HostGameManager");
+        gameManagerObj.AddComponent<NetworkObject>();
         GameManager = gameManagerObj.AddComponent<HostGameManager>();
         gameManagerObj.transform.SetParent(transform);
         DontDestroyOnLoad(gameManagerObj);

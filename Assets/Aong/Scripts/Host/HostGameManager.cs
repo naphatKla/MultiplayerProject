@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Netcode;
@@ -17,16 +18,8 @@ public class HostGameManager : NetworkBehaviour
     private const int MaxConnections = 15;
     private const string GameSceneName = "Lobby";
     
-    private NetworkList<PlayerNameData> playerNames = new NetworkList<PlayerNameData>();
-
-    public override void OnNetworkSpawn()
-    {
-        if (IsHost)
-        {
-            playerNames = new NetworkList<PlayerNameData>();
-            playerNames.Add(new PlayerNameData(""));
-        }
-    }
+    private Dictionary<ulong, string> playerNames = new Dictionary<ulong, string>();
+    
     
     public async Task StartHostAsync()
     {
@@ -68,45 +61,26 @@ public class HostGameManager : NetworkBehaviour
     {
         string connectionData = System.Text.Encoding.UTF8.GetString(request.Payload);
         Debug.Log($"Client connection data: {connectionData}");
+        
+        playerNames[request.ClientNetworkId] = connectionData;
 
         response.Approved = true;
         response.CreatePlayerObject = false;
     }
     
-    public void SetPlayerName(ulong clientId, string name)
+    public string GetPlayerName(ulong clientId)
     {
-        if (!IsHost) { return; }
-        Debug.Log($"HostGameManager - Setting name for client {clientId}: {name}");
-        int index = -1;
-        for (int i = 0; i < NetworkManager.Singleton.ConnectedClientsIds.Count; i++)
+        return playerNames.ContainsKey(clientId) ? playerNames[clientId] : "Unknown Player";
+    }
+    
+    public void OnClientDisconnect(ulong clientId)
+    {
+        if (playerNames.ContainsKey(clientId))
         {
-            if (NetworkManager.Singleton.ConnectedClientsIds[i] == clientId)
-            {
-                index = i;
-                break;
-            }
-        }
-
-        if (index >= 0 && index < playerNames.Count)
-        {
-            playerNames[index] = new PlayerNameData(name);
-        }
-        else
-        {
-            playerNames.Add(new PlayerNameData(name));
+            playerNames.Remove(clientId);
         }
     }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void SetPlayerNameServerRpc(ulong clientId, string name, ServerRpcParams rpcParams = default)
-    {
-        SetPlayerName(clientId, name);
-    }
-
-    public NetworkList<PlayerNameData> GetPlayerNames()
-    {
-        return playerNames;
-    }
+    
     
     // Spawn Player one Client
     public void SpawnPlayer(ulong clientId)

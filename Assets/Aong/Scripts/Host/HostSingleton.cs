@@ -6,28 +6,49 @@ public class HostSingleton : MonoBehaviour
     private static HostSingleton instance;
 
     public HostGameManager GameManager { get; private set; }
+
     public static HostSingleton Instance
     {
         get
         {
-            if (instance != null) { return instance; }
-            instance = FindFirstObjectByType<HostSingleton>();
-
             if (instance == null)
             {
-                Debug.LogError("No HostSingleton in the scene!");
-                return null;
+                GameObject hostSingletonObj = new GameObject("HostSingleton");
+                instance = hostSingletonObj.AddComponent<HostSingleton>();
+                DontDestroyOnLoad(hostSingletonObj);
             }
             return instance;
         }
     }
-    void Start()
+
+    void Awake()
     {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
         DontDestroyOnLoad(gameObject);
+        SetupGameManager();
     }
 
-    public void CreateHost()
+    private void SetupGameManager()
     {
-        GameManager = new HostGameManager();
+        GameObject gameManagerObj = new GameObject("HostGameManager");
+        GameManager = gameManagerObj.AddComponent<HostGameManager>();
+        gameManagerObj.transform.SetParent(transform);
+        DontDestroyOnLoad(gameManagerObj);
+    }
+
+    public async Task CreateHost()
+    {
+        if (GameManager == null)
+        {
+            Debug.LogError("GameManager is null! This should not happen.");
+            SetupGameManager();
+        }
+        await GameManager.StartHostAsync();
     }
 }

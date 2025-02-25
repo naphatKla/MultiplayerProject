@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -8,13 +9,24 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class HostGameManager
+public class HostGameManager : NetworkBehaviour
 {
     private Allocation allocation;
-    private string joinCode;
+    public string joinCode;
     
     private const int MaxConnections = 15;
     private const string GameSceneName = "Lobby";
+    
+    private NetworkList<PlayerNameData> playerNames = new NetworkList<PlayerNameData>();
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsHost)
+        {
+            playerNames = new NetworkList<PlayerNameData>();
+            playerNames.Add(new PlayerNameData(""));
+        }
+    }
     
     public async Task StartHostAsync()
     {
@@ -61,6 +73,41 @@ public class HostGameManager
         response.CreatePlayerObject = false;
     }
     
+    public void SetPlayerName(ulong clientId, string name)
+    {
+        if (!IsHost) { return; }
+        Debug.Log($"HostGameManager - Setting name for client {clientId}: {name}");
+        int index = -1;
+        for (int i = 0; i < NetworkManager.Singleton.ConnectedClientsIds.Count; i++)
+        {
+            if (NetworkManager.Singleton.ConnectedClientsIds[i] == clientId)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index >= 0 && index < playerNames.Count)
+        {
+            playerNames[index] = new PlayerNameData(name);
+        }
+        else
+        {
+            playerNames.Add(new PlayerNameData(name));
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerNameServerRpc(ulong clientId, string name, ServerRpcParams rpcParams = default)
+    {
+        SetPlayerName(clientId, name);
+    }
+
+    public NetworkList<PlayerNameData> GetPlayerNames()
+    {
+        return playerNames;
+    }
+    
     // Spawn Player one Client
     public void SpawnPlayer(ulong clientId)
     {
@@ -74,7 +121,7 @@ public class HostGameManager
         playerInstance.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
     }
 
-    // ฟSpawn Player All Client
+    // Spawn Player All Client
     public void SpawnAllPlayers()
     {
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)

@@ -9,7 +9,7 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ClientGameManager
+public class ClientGameManager : NetworkBehaviour
 {
     private JoinAllocation allocation;
     private const string MenuSceneName = "Menu";
@@ -54,5 +54,13 @@ public class ClientGameManager
         NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
 
         NetworkManager.Singleton.StartClient();
+    }
+    
+    public void SetPlayerName(ulong clientId, string name)
+    {
+        if (NetworkManager.Singleton.IsClient)
+        {
+            HostSingleton.Instance.GameManager.SetPlayerName(clientId, name);
+        }
     }
 }

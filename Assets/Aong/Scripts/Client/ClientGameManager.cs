@@ -13,13 +13,14 @@ public class ClientGameManager
 {
     private JoinAllocation allocation;
     private const string MenuSceneName = "Menu";
+
     public async Task<bool> InitAsync()
     {
         await UnityServices.InitializeAsync();
 
         AuthState authState = await AuthenticationWrapper.DoAuth();
 
-        if(authState == AuthState.Authenticated)
+        if (authState == AuthState.Authenticated)
         {
             return true;
         }
@@ -38,16 +39,19 @@ public class ClientGameManager
         {
             allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Debug.Log(e);
             return;
         }
-        
-        UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
+        UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         RelayServerData relayServerData = allocation.ToRelayServerData("dtls");
         transport.SetRelayServerData(relayServerData);
+        
+        byte[] connectionData = System.Text.Encoding.UTF8.GetBytes("ClientConnection");
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = connectionData;
+        NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
 
         NetworkManager.Singleton.StartClient();
     }

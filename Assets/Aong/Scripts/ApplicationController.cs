@@ -1,35 +1,34 @@
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class ApplicationController : MonoBehaviour
 {
     [SerializeField] private ClientSingleton clientPrefab;
     [SerializeField] private HostSingleton hostPrefab;
-    async void Start()
+
+    private async void Start()
     {
         DontDestroyOnLoad(gameObject);
-        await LaunchInMode(SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null);
+        await LaunchInMode(SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null);
     }
 
     private async Task LaunchInMode(bool isDedicatedServer)
     {
         if (isDedicatedServer)
         {
-            
         }
         else
         {
-            HostSingleton hostSingleton = Instantiate(hostPrefab);
-            hostSingleton.CreateHost();
-            
-            ClientSingleton clientSingleton = Instantiate(clientPrefab);
-            bool authenticated = await clientSingleton.CreateClient();
+            var hostSingleton = Instantiate(hostPrefab);
+            await hostSingleton.CreateHost();
+            var clientSingleton = Instantiate(clientPrefab);
+            var authenticated = await clientSingleton.CreateClient();
 
             if (authenticated)
-            {
                 clientSingleton.GameManager.GoToMenu();
-            }
+            else
+                Debug.LogError("Failed to authenticate client!");
         }
     }
-    
 }

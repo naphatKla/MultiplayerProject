@@ -20,7 +20,6 @@ public class HostGameManager : NetworkBehaviour
     
     private Dictionary<ulong, string> playerNames = new Dictionary<ulong, string>();
     
-    
     public async Task StartHostAsync()
     {
         try
@@ -53,7 +52,6 @@ public class HostGameManager : NetworkBehaviour
         NetworkManager.Singleton.ConnectionApprovalCallback = ApprovalCheck;
         
         NetworkManager.Singleton.StartHost();
-
         NetworkManager.Singleton.SceneManager.LoadScene(GameSceneName, LoadSceneMode.Single);
     }
     
@@ -73,14 +71,7 @@ public class HostGameManager : NetworkBehaviour
         return playerNames.ContainsKey(clientId) ? playerNames[clientId] : "Unknown Player";
     }
     
-    public void OnClientDisconnect(ulong clientId)
-    {
-        if (playerNames.ContainsKey(clientId))
-        {
-            playerNames.Remove(clientId);
-        }
-    }
-    
+
     
     // Spawn Player one Client
     public void SpawnPlayer(ulong clientId)
@@ -103,10 +94,5 @@ public class HostGameManager : NetworkBehaviour
             SpawnPlayer(clientId);
         }
     }
-
-    // Getter JoinCode
-    public string GetJoinCode()
-    {
-        return joinCode;
-    }
+    
 }

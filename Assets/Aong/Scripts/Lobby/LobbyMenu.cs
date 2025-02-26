@@ -9,13 +9,11 @@ public class LobbyMenu : MonoBehaviour
     private const string GameplaySceneName = "Gameplay";
     [SerializeField] private LobbyUIManager lobbyUIManager; 
     [SerializeField] private int minPlayersToStart = 2;
-    [SerializeField] private TMP_Text lobbycodeText; 
 
     void Start()
     {
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsClient)
         {
-            lobbycodeText.text = "Code: "+ HostSingleton.Instance.GameManager.joinCode;
             lobbyUIManager.UpdatePlayerList();
         }
     }

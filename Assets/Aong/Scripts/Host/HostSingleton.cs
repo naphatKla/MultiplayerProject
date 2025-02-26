@@ -14,15 +14,16 @@ public class HostSingleton : MonoBehaviour
         {
             if (instance == null)
             {
-                GameObject hostSingletonObj = new GameObject("HostSingleton");
+                var hostSingletonObj = new GameObject("HostSingleton");
                 instance = hostSingletonObj.AddComponent<HostSingleton>();
                 DontDestroyOnLoad(hostSingletonObj);
             }
+
             return instance;
         }
     }
 
-    void Awake()
+    private void Awake()
     {
         if (instance != null && instance != this)
         {
@@ -32,25 +33,29 @@ public class HostSingleton : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(gameObject);
-        SetupGameManager();
     }
 
     private void SetupGameManager()
     {
-        GameObject gameManagerObj = new GameObject("HostGameManager");
-        gameManagerObj.AddComponent<NetworkObject>();
+        if (GameManager != null) return;
+        var gameManagerObj = new GameObject("HostGameManager");
         GameManager = gameManagerObj.AddComponent<HostGameManager>();
-        gameManagerObj.transform.SetParent(transform);
         DontDestroyOnLoad(gameManagerObj);
     }
 
     public async Task CreateHost()
     {
-        if (GameManager == null)
+        if (NetworkManager.Singleton == null)
         {
-            Debug.LogError("GameManager is null! This should not happen.");
-            SetupGameManager();
+            Debug.LogError("NetworkManager is not present in the scene!");
+            return;
         }
-        await GameManager.StartHostAsync();
+
+        if (!NetworkManager.Singleton.IsListening)
+        {
+            SetupGameManager();
+            await GameManager.StartHostAsync();
+            GameManager.gameObject.AddComponent<NetworkObject>();
+        }
     }
 }

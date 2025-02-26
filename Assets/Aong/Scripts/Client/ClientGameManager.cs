@@ -13,17 +13,15 @@ public class ClientGameManager : NetworkBehaviour
 {
     private JoinAllocation allocation;
     private const string MenuSceneName = "Menu";
+    public string JoinCode { get; private set; }
 
     public async Task<bool> InitAsync()
     {
         await UnityServices.InitializeAsync();
 
-        AuthState authState = await AuthenticationWrapper.DoAuth();
+        var authState = await AuthenticationWrapper.DoAuth();
 
-        if (authState == AuthState.Authenticated)
-        {
-            return true;
-        }
+        if (authState == AuthState.Authenticated) return true;
 
         return false;
     }
@@ -38,6 +36,8 @@ public class ClientGameManager : NetworkBehaviour
         try
         {
             allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
+            JoinCode = joinCode;
+            Debug.Log($"[ClientGameManager] Stored Join Code: {JoinCode}");
         }
         catch (Exception e)
         {

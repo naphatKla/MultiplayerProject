@@ -5,40 +5,65 @@ using UnityEngine.PlayerLoop;
 
 public class PlayerInteract : NetworkBehaviour
 {
+    #region Propertys
+    
     public LayerMask interactableLayer;
     [SerializeField] private float interactRange = 5f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    
+    #endregion
 
-    // Update is called once per frame
+    #region Methods
 
     private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.E))
-        {Interact();}
-    }
-
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {Interact();}
+        }
+    
     private void Interact()
     {
-        Collider2D hitObject = Physics2D.OverlapCircle(transform.position, interactRange, interactableLayer);
-        hitObject.TryGetComponent<InteractObject>(out InteractObject interactObj);
-        
-        if (hitObject == null) 
-        {return;}
-        else if (hitObject.CompareTag("Interactable") && interactObj.isInteractable == true)
-        {
-            Debug.Log("Interact with: " + hitObject.name);
-        }
-        
-    }
+        Collider2D[] hitObjects = Physics2D.OverlapCircleAll(transform.position, interactRange, interactableLayer);
 
+        if (hitObjects.Length > 0)
+        {
+            Collider2D closestObj = FindClosestObj(hitObjects);
+            closestObj.TryGetComponent<InteractObject>(out InteractObject interactObj);
+            if (closestObj == null) 
+            {return;}
+            else if (closestObj.CompareTag("Interactable") && interactObj.isInteractable == true)
+            {
+                Debug.Log("Interact with: " + closestObj.name);
+            }
+        }
+
+    }
+    
+    private Collider2D FindClosestObj(Collider2D[] interactedObject)
+    {
+        Collider2D closest = null;
+        float minDistance = Mathf.Infinity;
+
+        foreach (Collider2D obj in interactedObject)
+        {
+            float distance = Vector2.Distance(transform.position, obj.transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closest = obj;
+            }
+        }
+
+        return closest;
+    }
+    
     void OnDrawGizmos()
     {
         // แสดงรัศมีของการตรวจจับใน Scene View
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, interactRange);
     }
+
+    #endregion
+    
+    
 }

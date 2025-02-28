@@ -25,7 +25,7 @@ public class DealDamageOnContact : MonoBehaviour
             }    
         }
         
-        if (col.attachedRigidbody.TryGetComponent(out Health health))
+        if (col.attachedRigidbody.TryGetComponent(out HealthSystem health))
         {
             health.TakeDamage(damage);
         }

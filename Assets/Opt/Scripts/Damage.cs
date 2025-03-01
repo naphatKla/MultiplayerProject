@@ -1,16 +1,15 @@
 using System;
-using Unity.Netcode;
 using UnityEngine;
+using Unity.Netcode;
 
-public class DealDamageOnContact : MonoBehaviour
+public class Damage : MonoBehaviour
 {
-    [SerializeField] private int damage = 5;
-
-    private ulong ownerClientId;
+    [SerializeField] private float damage = 10;
+    private ulong _ownerClientId;
 
     public void SetOwner(ulong ownerClientId)
     {
-        this.ownerClientId = ownerClientId;
+        this._ownerClientId = ownerClientId;
     }
     
     private void OnTriggerEnter2D(Collider2D col)
@@ -19,7 +18,7 @@ public class DealDamageOnContact : MonoBehaviour
 
         if (col.attachedRigidbody.TryGetComponent(out NetworkObject netObject))
         {
-            if (ownerClientId == netObject.OwnerClientId)
+            if (_ownerClientId == netObject.OwnerClientId)
             {
                 return;
             }    

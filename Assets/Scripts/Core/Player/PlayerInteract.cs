@@ -15,10 +15,17 @@ public class PlayerInteract : NetworkBehaviour
     #region Methods
 
     private void Update()
+    {
+        if (!IsOwner)
+        {return;}
+        else
         {
             if (Input.GetKeyDown(KeyCode.E))
             {Interact();}
         }
+
+        
+    }
     
     private void Interact()
     {
@@ -30,9 +37,10 @@ public class PlayerInteract : NetworkBehaviour
             closestObj.TryGetComponent<InteractObject>(out InteractObject interactObj);
             if (closestObj == null) 
             {return;}
-            else if (closestObj.CompareTag("Interactable") && interactObj.isInteractable == true)
+            else if (interactObj.isInteractable.Value)
             {
                 Debug.Log("Interact with: " + closestObj.name);
+                interactObj.RequestToggleServerRpc();
             }
         }
 
@@ -55,7 +63,7 @@ public class PlayerInteract : NetworkBehaviour
 
         return closest;
     }
-    
+
     void OnDrawGizmos()
     {
         // แสดงรัศมีของการตรวจจับใน Scene View

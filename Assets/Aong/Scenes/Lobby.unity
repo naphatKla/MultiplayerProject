@@ -936,7 +936,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e602ed109d5407c4095c91785626f49b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minPlayersToStart: 2
+  minPlayersToStart: 1
 --- !u!1 &1397456201
 GameObject:
   m_ObjectHideFlags: 0
@@ -1397,8 +1397,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1805731778}
   - component: {fileID: 1805731776}
-  - component: {fileID: 1805731779}
-  - component: {fileID: 1805731780}
   m_Layer: 0
   m_Name: LobbyUIManager
   m_TagString: Untagged
@@ -1446,36 +1444,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1805731779
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1805731775}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86af9ebaba3058248a933df8dd6f03c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  codeText: {fileID: 2097909019}
---- !u!114 &1805731780
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1805731775}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c493390cf0972f47b9c357b81ee24d8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  playerBarPrefab: {fileID: 4838871170069295281, guid: 0b13f3a490fe38a46a5c0851820e2ee8, type: 3}
-  content: {fileID: 1875530299}
-  debugText: {fileID: 0}
 --- !u!1 &1875530298
 GameObject:
   m_ObjectHideFlags: 0

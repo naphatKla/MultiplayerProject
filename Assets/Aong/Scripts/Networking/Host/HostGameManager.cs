@@ -13,6 +13,7 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 public class HostGameManager : IDisposable
 {
@@ -23,7 +24,7 @@ public class HostGameManager : IDisposable
     private NetworkServer networkServer;
 
     private const int MaxConnections = 20;
-    private const string GameSceneName = "Gameplay";
+    private const string GameSceneName = "Lobby";
     private const string JoinCodeKey = "JoinCode";
     public async Task StartHostAsync()
     {
@@ -90,6 +91,7 @@ public class HostGameManager : IDisposable
         byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
 
         NetworkManager.Singleton.NetworkConfig.ConnectionData = payloadBytes;
+        NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
         
         NetworkManager.Singleton.StartHost();
 
@@ -104,6 +106,33 @@ public class HostGameManager : IDisposable
         {
             LobbyService.Instance.SendHeartbeatPingAsync(lobbyId);
             yield return delay;
+        }
+    }
+
+    public void SpawnAllPlayers()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+
+
+        var playerPrefab = NetworkManager.Singleton.NetworkConfig.PlayerPrefab;
+        if (playerPrefab == null) return;
+
+        if (networkServer == null) return;
+
+        var connectedClients = networkServer.GetConnectedClients();
+
+        foreach (var clientId in connectedClients)
+        {
+            var playerInstance = Object.Instantiate(playerPrefab);
+            var networkObject = playerInstance.GetComponent<NetworkObject>();
+
+            if (networkObject != null)
+            {
+                networkObject.SpawnAsPlayerObject(clientId);
+                Debug.Log($"Spawned player for client {clientId}");
+
+                playerInstance.transform.position = new Vector3(clientId * 2f, 0f, 0f);
+            }
         }
     }
 

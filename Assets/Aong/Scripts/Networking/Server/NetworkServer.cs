@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class NetworkServer : IDisposable
 {
@@ -9,6 +10,7 @@ public class NetworkServer : IDisposable
 
     private Dictionary<ulong, string> clientIdToAuth = new Dictionary<ulong, string>();
     private Dictionary<string, UserData> authIdToUserData = new Dictionary<string, UserData>();
+    private List<ulong> connectedClients = new List<ulong>();
     public NetworkServer(NetworkManager networkManager)
     {
         this.networkManager = networkManager;
@@ -28,6 +30,7 @@ public class NetworkServer : IDisposable
         {
             clientIdToAuth.Remove(clientId);
             authIdToUserData.Remove(authId);
+            connectedClients.Remove(clientId);
         }
     }
 
@@ -38,10 +41,16 @@ public class NetworkServer : IDisposable
 
         clientIdToAuth[request.ClientNetworkId] = userData.userAuthId;
         authIdToUserData[userData.userAuthId] = userData;
+        connectedClients.Add(request.ClientNetworkId);
         //Debug.Log(userData.userName);
 
         response.Approved = true;
-        response.CreatePlayerObject = true;
+        response.CreatePlayerObject = false;
+    }
+    
+    public List<ulong> GetConnectedClients()
+    {
+        return new List<ulong>(connectedClients);
     }
 
     public void Dispose()

@@ -9,17 +9,22 @@ namespace Core.MovementSystems
     {
         [SerializeField] private InputReader inputReader;
         [SerializeField] private float curPlayerMoveSpeed;
-        private Rigidbody2D rb;
-        private SpriteRenderer spriteRenderer;
+        [Space] [Header("Dependencies")] [SerializeField] private Rigidbody2D rb;
+        [SerializeField] private SpriteRenderer spriteRenderer;
         private Vector2 movementInput;
+        
         public override void OnNetworkSpawn()
         {
-            rb = GetComponent<Rigidbody2D>();
-            spriteRenderer = GetComponent<SpriteRenderer>();
-            
             if (!IsOwner) return;
             inputReader.MoveEvent += SetMoveInput;
             inputReader.MouseMoveEvent += PlayerFacingHandler;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (!IsOwner) return;
+            inputReader.MoveEvent -= SetMoveInput;
+            inputReader.MouseMoveEvent -= PlayerFacingHandler;
         }
 
         private void Update()

@@ -9,7 +9,7 @@ namespace Input
     public class InputReader : ScriptableObject, IPlayerActions
     {
         public event Action<Vector2> MoveEvent;
-        public event Action<bool> PrimaryFireEvent;
+        public event Action<bool> PrimaryAttackEvent;
         public event Action<Vector2> MouseMoveEvent;
         private Controls controls;
     
@@ -34,15 +34,15 @@ namespace Input
             MoveEvent?.Invoke(context.ReadValue<Vector2>());
         }
     
-        public void OnPrimaryFire(InputAction.CallbackContext context)
+        public void OnPrimaryAttack(InputAction.CallbackContext context)
         {
             if (context.performed)
             {
-                PrimaryFireEvent?.Invoke(true);
+                PrimaryAttackEvent?.Invoke(true);
             }
             else if (context.canceled)
             {
-                PrimaryFireEvent?.Invoke(false);
+                PrimaryAttackEvent?.Invoke(false);
             }
         }
 

@@ -15,7 +15,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Primary Fire",
+                    "name": "Primary Attack",
                     "type": "Button",
                     "id": "99521ab7-504a-4a71-a7ec-4254bebed9c7",
                     "expectedControlType": "",
@@ -173,7 +173,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Primary Fire",
+                    "action": "Primary Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -184,7 +184,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Primary Fire",
+                    "action": "Primary Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

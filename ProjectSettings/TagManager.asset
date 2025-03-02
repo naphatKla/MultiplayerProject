@@ -8,14 +8,14 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Projectile
-  - 
-  - 
-  - 
-  - 
+  - Mask
+  - BehindMask
+  - BlackFilter
+  - Obstacle
   - 
   - 
   - 
@@ -46,6 +46,9 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 1047468351
+    locked: 0
+  - name: AbovePlayer
+    uniqueID: 3473906177
     locked: 0
   m_RenderingLayers:
   - Default

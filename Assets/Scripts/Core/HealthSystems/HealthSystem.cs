@@ -8,6 +8,7 @@ namespace Core.HealthSystems
     {
         [field: SerializeField] public float MaxHealth { get; private set; } = 100;
         [SerializeField] public NetworkVariable<float> currentHealth;
+        [SerializeField] private TakeDamageFeedback takeDamageFeedback;
         public Action<HealthSystem> onDie;
         private bool isDead;
     
@@ -16,10 +17,11 @@ namespace Core.HealthSystems
             if(!IsServer) {return;}
             currentHealth.Value = MaxHealth;
         }
-    
+        
         public void TakeDamage(float damageValue)
         {
             ModifyHealth(-damageValue);
+            PlayTakeDamageFeedbackClientRPC();
         }
     
         public void RestoreHealth(float healValue)
@@ -43,6 +45,12 @@ namespace Core.HealthSystems
             isDead = true;
         
             Destroy(gameObject);
+        }
+        
+        [Rpc(SendTo.Owner)]
+        private void PlayTakeDamageFeedbackClientRPC()
+        {
+            takeDamageFeedback?.Play();
         }
     }
 }

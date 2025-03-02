@@ -52,7 +52,7 @@ MonoBehaviour:
   viewDistance: 20
   layerMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 1025
 --- !u!33 &8657775420690027462
 MeshFilter:
   m_ObjectHideFlags: 0

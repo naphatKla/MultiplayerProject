@@ -1,4 +1,5 @@
 using System;
+using Input;
 using UnityEngine;
 
 public class FieldOfView : MonoBehaviour
@@ -16,13 +17,14 @@ public class FieldOfView : MonoBehaviour
     private int vertexIndex;
     private int triangleIndex;
     private float startingAngle;
+    
     private void Start()
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         origin = Vector3.zero;
     }
-
+    
     private void LateUpdate()
     {
         CastFieldOfView();

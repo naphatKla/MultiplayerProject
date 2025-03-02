@@ -23,8 +23,6 @@ public class PlayerInteract : NetworkBehaviour
             if (Input.GetKeyDown(KeyCode.E))
             {Interact();}
         }
-
-        
     }
     
     private void Interact()
@@ -72,6 +70,5 @@ public class PlayerInteract : NetworkBehaviour
     }
 
     #endregion
-    
-    
+
 }

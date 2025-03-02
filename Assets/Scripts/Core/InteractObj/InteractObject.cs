@@ -4,10 +4,16 @@ using UnityEngine;
 
 public class InteractObject : NetworkBehaviour
 {
+    #region Propertys
+
     public NetworkVariable<bool> isInteractable;
     public NetworkVariable<bool> isInteracting = new NetworkVariable<bool>(false);
     private bool _isDoorOpen;
-    
+
+    #endregion
+
+    #region Methods
+
     public override void OnNetworkSpawn()
     {
         isInteracting.OnValueChanged += DoorActive;
@@ -62,7 +68,15 @@ public class InteractObject : NetworkBehaviour
         {
             isInteracting.Value = !isInteracting.Value;
         }
-        
     }
+
+    [Rpc(SendTo.Server)]
+    private void RequestChangeInteractableRpc()
+    {
+        isInteractable.Value = !isInteractable.Value;
+    }
+
+    #endregion
+    
 
 }

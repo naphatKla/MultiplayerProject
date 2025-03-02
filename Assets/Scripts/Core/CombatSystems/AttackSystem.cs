@@ -1,4 +1,5 @@
 using Core.HealthSystems;
+using Feedbacks;
 using Input;
 using Unity.Netcode;
 using UnityEngine;
@@ -15,6 +16,7 @@ namespace Core.CombatSystems
         
         [Space] [Header("Dependencies")]
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private AttackFeedback attackFeedback;
 
         private Vector2 AttackCenterPosition
         {
@@ -43,6 +45,7 @@ namespace Core.CombatSystems
             if (!IsOwner) return;
             if (!isAttacking) return;
             
+            attackFeedback?.Play();
             AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage, NetworkObjectId);
         }
 

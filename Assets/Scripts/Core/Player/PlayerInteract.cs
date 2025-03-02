@@ -7,6 +7,7 @@ public class PlayerInteract : NetworkBehaviour
 {
     #region Propertys
     
+    // Interact object need to be in this layer in order to get detected
     public LayerMask interactableLayer;
     [SerializeField] private float interactRange = 5f;
     
@@ -35,8 +36,10 @@ public class PlayerInteract : NetworkBehaviour
             closestObj.TryGetComponent<InteractObject>(out InteractObject interactObj);
             if (closestObj == null) 
             {return;}
+            // Checking if player can interact with this object
             else if (interactObj.isInteractable.Value)
             {
+                // Request sever to interact with this selected game object
                 Debug.Log("Interact with: " + closestObj.name);
                 interactObj.RequestToggleServerRpc();
             }
@@ -44,6 +47,7 @@ public class PlayerInteract : NetworkBehaviour
 
     }
     
+    // Find the object in interact range and pick the closest one
     private Collider2D FindClosestObj(Collider2D[] interactedObject)
     {
         Collider2D closest = null;
@@ -64,7 +68,7 @@ public class PlayerInteract : NetworkBehaviour
 
     void OnDrawGizmos()
     {
-        // แสดงรัศมีของการตรวจจับใน Scene View
+        // Draw player interact range in scene view
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, interactRange);
     }

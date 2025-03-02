@@ -103,7 +103,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""Primary Fire"",
                     ""type"": ""Button"",
-                    ""id"": ""99521ab7-504a-4a71-a7ec-4254bebed9c7"",
+                    ""id"": ""98101fd9-a207-4aab-95f5-ac727c7070e7"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -112,7 +112,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""Aim"",
                     ""type"": ""Value"",
-                    ""id"": ""c528091a-2ca2-4dce-baab-2bb58144218a"",
+                    ""id"": ""32f525b3-829f-4441-ab85-2c72816a11b9"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -254,7 +254,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""f534a7ae-e128-4858-b4dc-b11c65931bc9"",
+                    ""id"": ""50ef3335-5962-4a80-945e-bc6cbb269a94"",
                     ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -265,7 +265,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""7996c490-c4a3-463e-9e6f-3eae02c1bc94"",
+                    ""id"": ""ebef7ce9-3152-4dfa-8fe2-792c0639c388"",
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -276,7 +276,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""51cf22fb-a387-475f-a321-f0e2c92c1294"",
+                    ""id"": ""3ade50a7-8461-4207-b1b2-003ee6c26cfe"",
                     ""path"": ""<Mouse>/position"",
                     ""interactions"": """",
                     ""processors"": """",

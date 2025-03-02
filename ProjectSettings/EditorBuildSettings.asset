@@ -6,16 +6,16 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/NetBootstrap.unity
-    guid: 0fdc203f751393249958806f9b1cd72b
+    path: Assets/Aong/Scenes/Bootstrap.unity
+    guid: d7105a261a6ccb148bd7d721a862d75d
   - enabled: 1
-    path: Assets/Scenes/Menu.unity
-    guid: 03e35d0c03a88424390c5209dc7ba7b8
+    path: Assets/Aong/Scenes/NetBootstrap.unity
+    guid: cd2848389b0739a4599e2923c8ce4624
   - enabled: 1
-    path: Assets/Scenes/Lobby.unity
-    guid: a525dabf769d77f4883b2c3b38eefba0
+    path: Assets/Aong/Scenes/Menu.unity
+    guid: 9ff7e609a655ca54fb78b06d9d53cb97
   - enabled: 1
-    path: Assets/Scenes/Gameplay.unity
+    path: Assets/Aong/Scenes/Gameplay.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

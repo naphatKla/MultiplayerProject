@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5010389531301969936}
   - component: {fileID: 7488354320573377606}
   - component: {fileID: 6400275459958526996}
-  - component: {fileID: 6880705514771431680}
+  - component: {fileID: 8042986407795052788}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 950540916
+  GlobalObjectIdHash: 2805533786
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -174,7 +174,7 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &6880705514771431680
+--- !u!114 &8042986407795052788
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -183,7 +183,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2614528964780537899}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e879009926e57a4caad5b508fca4dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: 5020c1fcedf525f4090f8ef3f5a7cb6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1

@@ -27,7 +27,7 @@ namespace Core.MovementSystems
             inputReader.MouseMoveEvent -= PlayerFacingHandler;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (!IsOwner) return;
             MovementHandler();
@@ -49,7 +49,7 @@ namespace Core.MovementSystems
         
         private void MovementHandler()
         {
-            Vector2 newPos = rb.position + movementInput * (curPlayerMoveSpeed * Time.deltaTime);
+            Vector2 newPos = rb.position + movementInput * (curPlayerMoveSpeed * Time.fixedDeltaTime);
             rb.MovePosition(newPos);
         }
         

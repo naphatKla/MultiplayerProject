@@ -1,7 +1,5 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 public class PlayerInteract : NetworkBehaviour
 {
@@ -21,7 +19,7 @@ public class PlayerInteract : NetworkBehaviour
         {return;}
         else
         {
-            if (Input.GetKeyDown(KeyCode.E))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.E))
             {Interact();}
         }
     }

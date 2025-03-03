@@ -435,6 +435,7 @@ GameObject:
   - component: {fileID: 1138011606706245361}
   - component: {fileID: 7687738981658957471}
   - component: {fileID: 238330312929066286}
+  - component: {fileID: 868513589705877479}
   - component: {fileID: 7411390534532146521}
   - component: {fileID: 3631358779522738814}
   m_Layer: 3
@@ -503,7 +504,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   inputReader: {fileID: 11400000, guid: 0e0079011af07bb479718e2e29be1b85, type: 2}
-  curPlayerMoveSpeed: 15
+  curPlayerMoveSpeed: 5
   rb: {fileID: 7411390534532146521}
   spriteRenderer: {fileID: 8688667412604255078}
 --- !u!114 &4762467204580182300
@@ -610,6 +611,23 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &868513589705877479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053161922813697055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6ca206470523f14492ac76367dc533b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  interactableLayer:
+    serializedVersion: 2
+    m_Bits: 2048
+  interactRange: 5
 --- !u!50 &7411390534532146521
 Rigidbody2D:
   serializedVersion: 5

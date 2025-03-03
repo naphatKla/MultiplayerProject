@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class LobbyMenu : MonoBehaviour
 {
     private const string GameplaySceneName = "Gameplay";
+    private const string MenuSceneName = "Menu";
     [SerializeField] private int minPlayersToStart = 2;
     
     public void StartGame()
@@ -24,5 +25,33 @@ public class LobbyMenu : MonoBehaviour
             return;
         }
         NetworkManager.Singleton.SceneManager.LoadScene(GameplaySceneName, LoadSceneMode.Single);
+    }
+
+    public void LeaveLobby()
+    {
+        if (NetworkManager.Singleton == null)
+        {
+            Debug.LogWarning("NetworkManager is not available, loading Menu directly!");
+            SceneManager.LoadScene(MenuSceneName);
+            return;
+        }
+
+        if (NetworkManager.Singleton.IsHost)
+        {
+            Debug.Log("[Host] Leaving Lobby and shutting down...");
+            HostSingleton.Instance.GameManager.Dispose();
+            NetworkManager.Singleton.Shutdown();
+            Debug.Log("[Host] Server shutdown complete.");
+        }
+        else if (NetworkManager.Singleton.IsClient)
+        {
+            Debug.Log("[Client] Disconnecting from Lobby...");
+            NetworkManager.Singleton.Shutdown();
+            ClientSingleton.Instance.GameManager.Dispose();
+            Debug.Log("[Client] Disconnected from Host.");
+        }
+
+        SceneManager.LoadScene(MenuSceneName);
+        Debug.Log($"Loading Scene: {MenuSceneName}");
     }
 }

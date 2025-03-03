@@ -24,17 +24,23 @@ public class NetworkServer : IDisposable
         networkManager.OnClientDisconnectCallback += OnClientDisconnect;
     }
 
-    private void OnClientDisconnect(ulong clientId)
+    private async void OnClientDisconnect(ulong clientId)
     {
         if (clientIdToAuth.TryGetValue(clientId, out string authId))
         {
             clientIdToAuth.Remove(clientId);
             authIdToUserData.Remove(authId);
             connectedClients.Remove(clientId);
+            Debug.Log($"[NetworkServer] Client {clientId} disconnected.");
+
+            if (HostSingleton.Instance?.GameManager != null)
+            {
+                await HostSingleton.Instance.GameManager.UpdateLobbyPlayerCount();
+            }
         }
     }
 
-    private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
+    private async void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
         string payload = System.Text.Encoding.UTF8.GetString(request.Payload);
         UserData userData = JsonUtility.FromJson<UserData>(payload);
@@ -42,10 +48,15 @@ public class NetworkServer : IDisposable
         clientIdToAuth[request.ClientNetworkId] = userData.userAuthId;
         authIdToUserData[userData.userAuthId] = userData;
         connectedClients.Add(request.ClientNetworkId);
-        //Debug.Log(userData.userName);
+        Debug.Log($"[NetworkServer] Client {request.ClientNetworkId} connected with name: {userData.userName}");
 
         response.Approved = true;
         response.CreatePlayerObject = false;
+
+        if (HostSingleton.Instance?.GameManager != null)
+        {
+            await HostSingleton.Instance.GameManager.UpdateLobbyPlayerCount();
+        }
     }
     
     public List<ulong> GetConnectedClients()

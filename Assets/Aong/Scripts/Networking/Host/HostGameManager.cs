@@ -127,6 +127,28 @@ public class HostGameManager : IDisposable
             ? fallbackName 
             : PlayerPrefs.GetString(NameSelector.PlayerNameKey, "Unknown");
     }
+    
+    public async Task UpdateLobbyPlayerCount()
+    {
+        if (string.IsNullOrEmpty(lobbyId) || networkServer == null) return;
+
+        int currentPlayers = networkServer.GetConnectedClients().Count;
+        try
+        {
+            await LobbyService.Instance.UpdateLobbyAsync(lobbyId, new UpdateLobbyOptions
+            {
+                Data = new Dictionary<string, DataObject>
+                {
+                    { "PlayerCount", new DataObject(DataObject.VisibilityOptions.Public, currentPlayers.ToString()) }
+                }
+            });
+            Debug.Log($"[Host] Updated Lobby player count: {currentPlayers}/{MaxConnections}");
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Failed to update Lobby player count: {e.Message}");
+        }
+    }
 
     public void SpawnAllPlayers()
     {
@@ -155,6 +177,8 @@ public class HostGameManager : IDisposable
         }
     }
 
+   
+    
     public async void Dispose()
     {
         HostSingleton.Instance.StopCoroutine(nameof(HeartbeatLobby));

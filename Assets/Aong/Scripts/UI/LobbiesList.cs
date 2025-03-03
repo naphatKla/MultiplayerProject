@@ -43,7 +43,10 @@ public class LobbiesList : MonoBehaviour
             foreach(Lobby lobby in lobbies.Results)
             {
                 LobbyItem lobbyItem = Instantiate(lobbyItemPrefab, lobbyItemParent);
-                lobbyItem.Initalise(this, lobby);
+                string playerCount = lobby.Data != null && lobby.Data.ContainsKey("PlayerCount") 
+                    ? lobby.Data["PlayerCount"].Value 
+                    : lobby.Players.Count.ToString();
+                lobbyItem.Initalise(this, lobby, playerCount);
             }
         }
         catch(LobbyServiceException e)

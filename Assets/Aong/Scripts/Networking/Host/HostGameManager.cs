@@ -26,6 +26,9 @@ public class HostGameManager : IDisposable
     private const int MaxConnections = 20;
     private const string GameSceneName = "Lobby";
     private const string JoinCodeKey = "JoinCode";
+    
+    private Dictionary<ulong, string> playerNames = new Dictionary<ulong, string>();
+    
     public async Task StartHostAsync()
     {
         try
@@ -94,7 +97,6 @@ public class HostGameManager : IDisposable
         NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
         
         NetworkManager.Singleton.StartHost();
-
         NetworkManager.Singleton.SceneManager.LoadScene(GameSceneName, LoadSceneMode.Single);
     }
 
@@ -107,6 +109,23 @@ public class HostGameManager : IDisposable
             LobbyService.Instance.SendHeartbeatPingAsync(lobbyId);
             yield return delay;
         }
+    }
+    
+    public string GetPlayerName(ulong clientId)
+    {
+        if (networkServer != null)
+        {
+            string name = networkServer.GetUserName(clientId);
+            if (!string.IsNullOrEmpty(name))
+            {
+                playerNames[clientId] = name;
+                return name;
+            }
+        }
+        
+        return playerNames.TryGetValue(clientId, out string fallbackName) 
+            ? fallbackName 
+            : PlayerPrefs.GetString(NameSelector.PlayerNameKey, "Unknown");
     }
 
     public void SpawnAllPlayers()

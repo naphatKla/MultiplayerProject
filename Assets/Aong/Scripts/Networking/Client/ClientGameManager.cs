@@ -65,6 +65,7 @@ public class ClientGameManager : IDisposable
         NetworkManager.Singleton.NetworkConfig.ConnectionData = payloadBytes;
         
         NetworkManager.Singleton.StartClient();
+        Debug.Log($"[Client] Started with name: {userData.userName}");
     }
 
     public void Dispose()

@@ -52,6 +52,16 @@ public class NetworkServer : IDisposable
     {
         return new List<ulong>(connectedClients);
     }
+    
+    public string GetUserName(ulong clientId)
+    {
+        if (clientIdToAuth.TryGetValue(clientId, out string authId) && 
+            authIdToUserData.TryGetValue(authId, out UserData userData))
+        {
+            return userData.userName;
+        }
+        return null;
+    }
 
     public void Dispose()
     {

@@ -1,4 +1,5 @@
 using System;
+using Feedbacks;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,24 +9,26 @@ namespace Core.HealthSystems
     {
         [field: SerializeField] public float MaxHealth { get; private set; } = 100;
         [SerializeField] public NetworkVariable<float> currentHealth;
-        [SerializeField] private TakeDamageFeedback takeDamageFeedback;
         public Action<HealthSystem> onDie;
+        public Action onTakeDamage;
         private bool isDead;
     
         public override void OnNetworkSpawn()
         {
-            if(!IsServer) {return;}
+            if(!IsServer) return;
             currentHealth.Value = MaxHealth;
         }
         
         public void TakeDamage(float damageValue)
         {
+            if (!IsServer) return;
             ModifyHealth(-damageValue);
-            PlayTakeDamageFeedbackClientRPC();
+            onTakeDamage?.Invoke();
         }
     
         public void RestoreHealth(float healValue)
         {
+            if (!IsServer) return;
             ModifyHealth(healValue);
         }
     
@@ -45,12 +48,6 @@ namespace Core.HealthSystems
             isDead = true;
         
             Destroy(gameObject);
-        }
-        
-        [Rpc(SendTo.Owner)]
-        private void PlayTakeDamageFeedbackClientRPC()
-        {
-            takeDamageFeedback?.Play();
         }
     }
 }

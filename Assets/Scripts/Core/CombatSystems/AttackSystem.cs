@@ -1,3 +1,4 @@
+using System;
 using Core.HealthSystems;
 using Feedbacks;
 using Input;
@@ -16,7 +17,7 @@ namespace Core.CombatSystems
         
         [Space] [Header("Dependencies")]
         [SerializeField] private SpriteRenderer spriteRenderer;
-        [SerializeField] private AttackFeedback attackFeedback;
+        public Action onStartAttack;
 
         private Vector2 AttackCenterPosition
         {
@@ -44,15 +45,14 @@ namespace Core.CombatSystems
         {
             if (!IsOwner) return;
             if (!isAttacking) return;
-            
-            attackFeedback?.Play();
+
+            onStartAttack?.Invoke();
             AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage, NetworkObjectId);
         }
 
         [ServerRpc]
         private void AttackHandlerServerRpc(Vector2 damageCenter, Vector2 damageSize, float damage, ulong attackerID)
         {
-            Debug.Log($"{attackerID} was attacked");
             Collider2D[] targetsInAttackRange = Physics2D.OverlapBoxAll(damageCenter, damageSize, 0, targetLayer);
             foreach (Collider2D target in targetsInAttackRange)
             {

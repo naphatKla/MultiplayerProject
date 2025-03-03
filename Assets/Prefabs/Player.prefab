@@ -45,9 +45,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd285a24d6454d043a01051a17c9e25f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   cameraShakeSource: {fileID: 6277952133224897386}
   bodySprite: {fileID: 8688667412604255078}
   redScreenFlashUI: {fileID: 2809533039027737433}
+  healthSystem: {fileID: 4762467204580182300}
 --- !u!114 &6277952133224897386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,6 +264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraShakeSource: {fileID: 2668496992719552482}
+  attackSystem: {fileID: 1138011606706245361}
 --- !u!114 &2668496992719552482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -519,7 +522,6 @@ MonoBehaviour:
   <MaxHealth>k__BackingField: 100
   currentHealth:
     m_InternalValue: 0
-  takeDamageFeedback: {fileID: 8523111287470607426}
 --- !u!114 &-4692630260399668288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,7 +560,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   spriteRenderer: {fileID: 8688667412604255078}
-  attackFeedback: {fileID: 1697522583456221994}
 --- !u!114 &7687738981658957471
 MonoBehaviour:
   m_ObjectHideFlags: 0

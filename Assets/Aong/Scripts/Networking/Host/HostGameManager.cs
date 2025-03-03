@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
@@ -26,53 +25,54 @@ public class HostGameManager : IDisposable
     private const int MaxConnections = 20;
     private const string GameSceneName = "Lobby";
     private const string JoinCodeKey = "JoinCode";
-    
-    private Dictionary<ulong, string> playerNames = new Dictionary<ulong, string>();
-    
+
+    private readonly Dictionary<ulong, string> playerNames = new();
+
     public async Task StartHostAsync()
     {
         try
         {
             allocation = await RelayService.Instance.CreateAllocationAsync(MaxConnections);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Debug.Log(e);
             return;
         }
+
         try
         {
             joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             Debug.Log(joinCode);
-            PlayerPrefs.SetString(JoinCodeKey,joinCode);
+            PlayerPrefs.SetString(JoinCodeKey, joinCode);
         }
-        catch (Exception e) 
+        catch (Exception e)
         {
             Debug.Log(e);
             return;
         }
-        
-        UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
-        RelayServerData relayServerData = allocation.ToRelayServerData("dtls");
+        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+
+        var relayServerData = allocation.ToRelayServerData("dtls");
         transport.SetRelayServerData(relayServerData);
 
         try
         {
-            CreateLobbyOptions lobbyOptions = new CreateLobbyOptions();
+            var lobbyOptions = new CreateLobbyOptions();
             lobbyOptions.IsPrivate = false;
-            lobbyOptions.Data = new Dictionary<string, DataObject>()
+            lobbyOptions.Data = new Dictionary<string, DataObject>
             {
                 {
-                    "JoinCode",new DataObject(
-                        visibility: DataObject.VisibilityOptions.Member,
-                        value: joinCode
+                    "JoinCode", new DataObject(
+                        DataObject.VisibilityOptions.Member,
+                        joinCode
                     )
                 }
             };
-            string playerName = PlayerPrefs.GetString(NameSelector.PlayerNameKey, "Unknown");
-            Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(
-                $"{playerName}'s Lobby",MaxConnections,lobbyOptions);
+            var playerName = PlayerPrefs.GetString(NameSelector.PlayerNameKey, "Unknown");
+            var lobby = await LobbyService.Instance.CreateLobbyAsync(
+                $"{playerName}'s Lobby", MaxConnections, lobbyOptions);
             lobbyId = lobby.Id;
 
             HostSingleton.Instance.StartCoroutine(HeartbeatLobby(15));
@@ -84,55 +84,55 @@ public class HostGameManager : IDisposable
         }
 
         networkServer = new NetworkServer(NetworkManager.Singleton);
-        
-        UserData userData = new UserData
+
+        var userData = new UserData
         {
             userName = PlayerPrefs.GetString(NameSelector.PlayerNameKey, "Missing Name"),
             userAuthId = AuthenticationService.Instance.PlayerId
         };
-        string payload = JsonUtility.ToJson(userData);
-        byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
+        var payload = JsonUtility.ToJson(userData);
+        var payloadBytes = Encoding.UTF8.GetBytes(payload);
 
         NetworkManager.Singleton.NetworkConfig.ConnectionData = payloadBytes;
         NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
-        
+
         NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.SceneManager.LoadScene(GameSceneName, LoadSceneMode.Single);
     }
 
     private IEnumerator HeartbeatLobby(float waitTimeSeconds)
     {
-        WaitForSecondsRealtime delay = new WaitForSecondsRealtime(waitTimeSeconds);
+        var delay = new WaitForSecondsRealtime(waitTimeSeconds);
 
-        while (true) 
+        while (true)
         {
             LobbyService.Instance.SendHeartbeatPingAsync(lobbyId);
             yield return delay;
         }
     }
-    
+
     public string GetPlayerName(ulong clientId)
     {
         if (networkServer != null)
         {
-            string name = networkServer.GetUserName(clientId);
+            var name = networkServer.GetUserName(clientId);
             if (!string.IsNullOrEmpty(name))
             {
                 playerNames[clientId] = name;
                 return name;
             }
         }
-        
-        return playerNames.TryGetValue(clientId, out string fallbackName) 
-            ? fallbackName 
+
+        return playerNames.TryGetValue(clientId, out var fallbackName)
+            ? fallbackName
             : PlayerPrefs.GetString(NameSelector.PlayerNameKey, "Unknown");
     }
-    
+
     public async Task UpdateLobbyPlayerCount()
     {
         if (string.IsNullOrEmpty(lobbyId) || networkServer == null) return;
 
-        int currentPlayers = networkServer.GetConnectedClients().Count;
+        var currentPlayers = networkServer.GetConnectedClients().Count;
         try
         {
             await LobbyService.Instance.UpdateLobbyAsync(lobbyId, new UpdateLobbyOptions
@@ -177,8 +177,7 @@ public class HostGameManager : IDisposable
         }
     }
 
-   
-    
+
     public async void Dispose()
     {
         HostSingleton.Instance.StopCoroutine(nameof(HeartbeatLobby));
@@ -196,7 +195,7 @@ public class HostGameManager : IDisposable
 
             lobbyId = string.Empty;
         }
-        
+
         if (networkServer != null)
         {
             try
@@ -208,6 +207,7 @@ public class HostGameManager : IDisposable
             {
                 Debug.LogError($"Error disposing NetworkServer: {e}");
             }
+
             networkServer = null;
         }
         else

@@ -20,7 +20,7 @@ public class HostGameManager : IDisposable
     private string joinCode;
     private string lobbyId;
 
-    private NetworkServer networkServer;
+    public NetworkServer networkServer;
 
     private const int MaxConnections = 20;
     private const string GameSceneName = "Lobby";

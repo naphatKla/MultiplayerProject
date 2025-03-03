@@ -9,7 +9,7 @@ public class LobbyMenu : MonoBehaviour
     private const string GameplaySceneName = "Gameplay";
     private const string MenuSceneName = "Menu";
     [SerializeField] private int minPlayersToStart = 2;
-    
+
     public void StartGame()
     {
         if (!NetworkManager.Singleton.IsHost)
@@ -17,7 +17,7 @@ public class LobbyMenu : MonoBehaviour
             Debug.Log("Only the Host can start the game!");
             return;
         }
-        
+
         int playerCount = NetworkManager.Singleton.ConnectedClientsIds.Count;
         if (playerCount < minPlayersToStart)
         {
@@ -34,6 +34,12 @@ public class LobbyMenu : MonoBehaviour
             Debug.LogWarning("NetworkManager is not available, loading Menu directly!");
             SceneManager.LoadScene(MenuSceneName);
             return;
+        }
+        
+        var lobbyDisplay = FindObjectOfType<LobbyPlayerDisplay>();
+        if (lobbyDisplay != null)
+        {
+            lobbyDisplay.OnNetworkDespawn();
         }
 
         if (NetworkManager.Singleton.IsHost)

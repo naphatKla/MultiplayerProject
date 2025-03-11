@@ -12,7 +12,13 @@ namespace Core.MovementSystems
         [Space] [Header("Dependencies")] [SerializeField] private Rigidbody2D rb;
         [SerializeField] private SpriteRenderer spriteRenderer;
         private Vector2 movementInput;
-        
+
+        private NetworkVariable<bool> isMoving = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<bool> isRunning = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+        [Header("Components")]
+        [SerializeField] private Animator animator;
+
         public override void OnNetworkSpawn()
         {
             if (!IsOwner) return;
@@ -51,8 +57,38 @@ namespace Core.MovementSystems
         {
             Vector2 newPos = rb.position + movementInput * (curPlayerMoveSpeed * Time.deltaTime);
             rb.MovePosition(newPos);
+
+            PlayMovingAnimationServerRpc();
         }
-        
+
+        [ServerRpc]
+        private void PlayMovingAnimationServerRpc()
+        {
+            PlayMovingAnimationClientRpc();
+        }
+
+        [ClientRpc]
+        private void PlayMovingAnimationClientRpc()
+        {
+            if (movementInput.magnitude <= 0)
+            {
+                isMoving.Value = false;
+            }
+            else
+            {
+                isMoving.Value = true;
+            }
+
+            Debug.Log("movementInput.magnitude : " + movementInput.magnitude);
+            animator.SetBool("isMoving", isMoving.Value);
+
+            if (isMoving.Value)
+            {
+                isRunning.Value = curPlayerMoveSpeed > 15f;
+                animator.SetBool("isRunning", isRunning.Value); // Adjust 'someThreshold' based on your speeds
+            }
+        }
+
         [ServerRpc]
         private void UpdateFacingServerRpc(bool shouldFaceLeft)
         {

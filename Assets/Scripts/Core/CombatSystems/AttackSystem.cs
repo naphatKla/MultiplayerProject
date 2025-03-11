@@ -14,10 +14,15 @@ namespace Core.CombatSystems
         [SerializeField] private Vector2 attackSize;
         [SerializeField] private Vector2 offset;
         [SerializeField] private LayerMask targetLayer;
-        
+        private NetworkVariable<bool> isAttacking = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        [SerializeField] private int attackIndex = 1;
+
         [Space] [Header("Dependencies")]
         [SerializeField] private SpriteRenderer spriteRenderer;
         public Action onStartAttack;
+
+        [Header("Components")]
+        [SerializeField] private Animator animator;
 
         private Vector2 AttackCenterPosition
         {
@@ -41,13 +46,57 @@ namespace Core.CombatSystems
             inputReader.PrimaryAttackEvent += AttackHandler;
         }
         
-        private void AttackHandler(bool isAttacking)
+        private void AttackHandler(bool isAttackingInput)
         {
             if (!IsOwner) return;
-            if (!isAttacking) return;
+            if (!isAttackingInput) return;
+            //if (isAttacking.Value) return;
 
-            onStartAttack?.Invoke();
+            PlayAttackAnimationServerRpc();
+
             AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage, NetworkObjectId);
+        }
+
+        [ServerRpc]
+        private void PlayAttackAnimationServerRpc()
+        {
+            PlayAttackAnimationClientRpc();
+        }
+
+        [ClientRpc]
+        private void PlayAttackAnimationClientRpc()
+        {
+            if (attackIndex == 1)
+            {
+                attackIndex = 2;
+            }
+            else if (attackIndex == 2)
+            {
+                attackIndex = 1;
+            }
+
+            animator.SetInteger("attackIndex", attackIndex);
+            animator.SetTrigger("attack");
+            animator.SetBool("isAttacking", true);
+            Invoke("ResetAttackServerRpc", 0.375f);
+        }
+
+        [ServerRpc]
+        private void ResetAttackServerRpc()
+        {
+            ResetAttackClientRpc();
+        }
+
+        [ClientRpc]
+        private void ResetAttackClientRpc()
+        {
+            animator.SetBool("isAttacking", false);
+            animator.SetInteger("attackIndex", 0);
+        }
+
+        public void EndAttack()
+        {
+            //animator.SetInteger("attackIndex", 0);
         }
 
         [ServerRpc]

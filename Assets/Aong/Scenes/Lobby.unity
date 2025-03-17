@@ -1121,6 +1121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e602ed109d5407c4095c91785626f49b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameplaySceneName: EnemyAongScene
   minPlayersToStart: 1
 --- !u!1 &1397456201
 GameObject:

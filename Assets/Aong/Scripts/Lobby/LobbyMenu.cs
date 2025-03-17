@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class LobbyMenu : MonoBehaviour
 {
-    private const string GameplaySceneName = "Main";
+    [SerializeField] private string GameplaySceneName;
     private const string MenuSceneName = "Menu";
     [SerializeField] private int minPlayersToStart = 2;
 

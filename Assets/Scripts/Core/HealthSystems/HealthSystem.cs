@@ -11,18 +11,30 @@ namespace Core.HealthSystems
         [SerializeField] public NetworkVariable<float> currentHealth;
         public Action<HealthSystem> onDie;
         public Action onTakeDamage;
-        private bool isDead;
-    
+        private NetworkVariable<bool> isDead = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+        [Header("Components")]
+        [SerializeField] private Animator animator;
+
         public override void OnNetworkSpawn()
         {
             if(!IsServer) return;
             currentHealth.Value = MaxHealth;
         }
-        
+
         public void TakeDamage(float damageValue)
         {
             if (!IsServer) return;
             ModifyHealth(-damageValue);
+            TakeDamageOnClientRpc();
+        }
+
+        [ClientRpc]
+        public void TakeDamageOnClientRpc()
+        {
+            //if (!IsServer) return;
+            
+            animator.SetTrigger("isHurt");
             onTakeDamage?.Invoke();
         }
     
@@ -34,19 +46,27 @@ namespace Core.HealthSystems
     
         private void ModifyHealth(float value)
         {
-            if (isDead) return;
+            if (isDead.Value) return;
             float newHealth = currentHealth.Value + value;
             currentHealth.Value = Mathf.Clamp(newHealth, 0, MaxHealth);
             
-            if (currentHealth.Value > 0f) return;
-            Dead();
+            if (currentHealth.Value > 0f && !isDead.Value) return;
+            DeadOnServerRpc();
         }
-    
-        private void Dead()
+
+        [ServerRpc]
+        private void DeadOnServerRpc()
         {
+            DeadOnClientRpc();
+        }
+
+        [ClientRpc]
+        private void DeadOnClientRpc()
+        {
+            animator.SetTrigger("isDead");
             onDie?.Invoke(this);
-            isDead = true;
-        
+            isDead.Value = true;
+
             Destroy(gameObject);
         }
     }

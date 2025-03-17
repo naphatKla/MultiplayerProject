@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 public class GameSceneManager : MonoBehaviour
 {
-    private const string GameSceneName = "Gameplay";
+    private const string GameSceneName = "Main";
     
     private IEnumerator Start()
     {

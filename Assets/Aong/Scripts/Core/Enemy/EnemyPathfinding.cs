@@ -10,9 +10,11 @@ public class EnemyPathfinding : NetworkBehaviour
     public LayerMask playerLayer;
     private Vector2 startPosition;
     private Vector2 lastSentPosition;
-    private float positionThreshold = 0.1f;
-    
-    void Start()
+    private readonly float positionThreshold = 0.1f;
+
+    [SerializeField] private SpriteRenderer spriteRenderer;
+
+    private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         startPosition = transform.position;
@@ -23,26 +25,21 @@ public class EnemyPathfinding : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
-        {
-            Debug.Log("Enemy Spawned on Server");
-        }
+        if (IsServer) Debug.Log("Enemy Spawned on Server");
     }
 
-    void Update()
+    private void FixedUpdate()
     {
         if (IsServer)
         {
             DetectPlayer();
+            if (target != null) EnemyFacingHandler(target.position);
+
             if (target != null)
-            {
                 agent.SetDestination(target.position);
-            }
             else
-            {
                 agent.SetDestination(startPosition);
-            }
-            
+
             if (Vector2.Distance(transform.position, lastSentPosition) > positionThreshold)
             {
                 lastSentPosition = transform.position;
@@ -52,23 +49,20 @@ public class EnemyPathfinding : NetworkBehaviour
     }
 
     [ClientRpc]
-    void UpdatePositionClientRpc(Vector2 newPosition)
+    private void UpdatePositionClientRpc(Vector2 newPosition)
     {
-        if (!IsServer)
-        {
-            transform.position = Vector2.Lerp(transform.position, newPosition, Time.deltaTime * 10f);
-        }
+        if (!IsServer) transform.position = Vector2.Lerp(transform.position, newPosition, Time.deltaTime * 10f);
     }
 
-    void DetectPlayer()
+    private void DetectPlayer()
     {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius, playerLayer);
-        float closestDistance = Mathf.Infinity;
+        var hitColliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius, playerLayer);
+        var closestDistance = Mathf.Infinity;
         Transform closestPlayer = null;
 
-        foreach (Collider2D col in hitColliders)
+        foreach (var col in hitColliders)
         {
-            float distance = Vector2.Distance(transform.position, col.transform.position);
+            var distance = Vector2.Distance(transform.position, col.transform.position);
             if (distance < closestDistance)
             {
                 closestDistance = distance;
@@ -79,7 +73,27 @@ public class EnemyPathfinding : NetworkBehaviour
         target = closestPlayer;
     }
 
-    void OnDrawGizmosSelected()
+    private void EnemyFacingHandler(Vector2 target)
+    {
+        var lookDirection = target - (Vector2)transform.position;
+        var angle = Mathf.Atan2(lookDirection.y, lookDirection.x) * Mathf.Rad2Deg;
+        var shouldFaceLeft = angle > 90 || angle < -90;
+        UpdateFacingServerRpc(shouldFaceLeft);
+    }
+
+    [ServerRpc]
+    private void UpdateFacingServerRpc(bool shouldFaceLeft)
+    {
+        UpdateFacingClientRpc(shouldFaceLeft);
+    }
+
+    [ClientRpc]
+    private void UpdateFacingClientRpc(bool shouldFaceLeft)
+    {
+        spriteRenderer.flipX = shouldFaceLeft;
+    }
+
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);

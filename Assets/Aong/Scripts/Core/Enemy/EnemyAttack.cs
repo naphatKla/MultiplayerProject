@@ -1,149 +1,103 @@
-using System;
 using Core.HealthSystems;
-using Feedbacks;
-using Input;
 using Unity.Netcode;
 using UnityEngine;
 
 public class EnemyAttack : NetworkBehaviour
 {
-        [SerializeField] private float attackDamage;
-        [SerializeField] private float attackCooldown;
-        [SerializeField] private LayerMask targetLayer;
-        private NetworkVariable<bool> isAttacking = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
-        [SerializeField] private int attackIndex = 1;
+    [SerializeField] private float attackDamage;
+    [SerializeField] private float attackCooldown;
+    [SerializeField] private LayerMask targetLayer;
+    [SerializeField] private Vector2 attackSize = new(1f, 1f);
+    [SerializeField] private Vector2 attackOffset = new(1f, 0f);
+    [SerializeField] private int attackIndex = 1;
 
-        [Space] [Header("Dependencies")]
-        [SerializeField] private SpriteRenderer spriteRenderer;
-        [SerializeField] private Transform attackPoint;
-        public Action onStartAttack;
+    [Header("Dependencies")] [SerializeField]
+    private SpriteRenderer spriteRenderer;
 
-        [Header("Components")]
-        [SerializeField] private Animator animator;
-        
-        private float lastAttackTime;
-        private EnemyPathfinding enemyPathfinding;
-        private Vector2 baseAttackPointOffset;
-        private bool lastFlipXState;
+    private EnemyPathfinding enemyPathfinding;
+    [SerializeField] private Animator animator;
 
-        private void Start()
-        {
-            enemyPathfinding = GetComponent<EnemyPathfinding>();
-            baseAttackPointOffset = attackPoint.localPosition;
-            lastFlipXState = spriteRenderer.flipX;
-        }
-        
-        private Vector2 AttackCenterPosition
-        {
-            get
-            {
-                return attackPoint.position;
-            }
-        }
-        
-        private void Update()
-        {
-            if (spriteRenderer.flipX != lastFlipXState)
-            {
-                UpdateAttackPointPosition();
-                lastFlipXState = spriteRenderer.flipX;
-            }
-        }
-        
-        private void UpdateAttackPointPosition()
-        {
-            Vector3 newLocalPosition = baseAttackPointOffset;
-            if (spriteRenderer.flipX)
-            {
-                newLocalPosition.x = -baseAttackPointOffset.x;
-            }
-            attackPoint.localPosition = newLocalPosition;
-        }
+    private NetworkVariable<bool> isAttacking =
+        new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-        private void FixedUpdate()
-        {
-            if (!IsServer) return;
-            if (Time.time >= lastAttackTime + attackCooldown)
-            {
-                AttackHandler();
-            }
-        }
+    private float lastAttackTime;
+    private Vector2 baseAttackOffset;
+    private bool isFlipped;
 
-        private void AttackHandler()
-        {
-            lastAttackTime = Time.time;
-            /*PlayAttackAnimationServerRpc();*/
-            Vector2 attackScaleSize = new Vector2(
-                Mathf.Abs(attackPoint.localScale.x),
-                Mathf.Abs(attackPoint.localScale.y)
-            );
-            AttackHandlerServerRpc(AttackCenterPosition, attackScaleSize, attackDamage);
-        }
-
-        [ServerRpc]
-        private void PlayAttackAnimationServerRpc()
-        {
-            PlayAttackAnimationClientRpc();
-        }
-
-        [ClientRpc]
-        private void PlayAttackAnimationClientRpc()
-        {
-            if (attackIndex == 1)
-            {
-                attackIndex = 2;
-            }
-            else if (attackIndex == 2)
-            {
-                attackIndex = 1;
-            }
-
-            animator?.SetInteger("attackIndex", attackIndex);
-            animator?.SetTrigger("attack");
-            animator?.SetBool("isAttacking", true);
-            Invoke("ResetAttackServerRpc", 0.375f);
-        }
-
-        [ServerRpc]
-        private void ResetAttackServerRpc()
-        {
-            ResetAttackClientRpc();
-        }
-
-        [ClientRpc]
-        private void ResetAttackClientRpc()
-        {
-            animator.SetBool("isAttacking", false);
-            animator.SetInteger("attackIndex", 0);
-        }
-
-        public void EndAttack()
-        {
-            //animator.SetInteger("attackIndex", 0);
-        }
-
-        [ServerRpc]
-        private void AttackHandlerServerRpc(Vector2 damageCenter, Vector2 damageSize, float damage)
-        {
-            Collider2D[] targetsInAttackRange = Physics2D.OverlapBoxAll(damageCenter, damageSize, 0, targetLayer);
-            foreach (Collider2D target in targetsInAttackRange)
-            {
-                if (!target.TryGetComponent(out HealthSystem targetHealth)) continue;
-                targetHealth.TakeDamage(damage);
-                Debug.Log($"Hit {target.name} at {target.transform.position} : {damage} damage");
-            }
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (attackPoint != null)
-            {
-                Vector2 gizmoSize = new Vector2(
-                    Mathf.Abs(attackPoint.localScale.x),
-                    Mathf.Abs(attackPoint.localScale.y)
-                );
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireCube(AttackCenterPosition, gizmoSize);
-            }
-        }
+    private void Start()
+    {
+        enemyPathfinding = GetComponent<EnemyPathfinding>();
+        baseAttackOffset = attackOffset;
+        isFlipped = spriteRenderer.flipX;
     }
+
+    private Vector2 AttackCenterPosition => (Vector2)transform.position + (isFlipped
+        ? new Vector2(-baseAttackOffset.x, baseAttackOffset.y)
+        : baseAttackOffset);
+
+    private void Update()
+    {
+        var currentFlip = spriteRenderer.flipX;
+        if (currentFlip != isFlipped) isFlipped = currentFlip;
+    }
+
+    private void FixedUpdate()
+    {
+        if (!IsServer || (enemyPathfinding.target != null && Time.time < lastAttackTime + attackCooldown)) return;
+        AttackHandler();
+    }
+
+    private void AttackHandler()
+    {
+        lastAttackTime = Time.time;
+        /*PlayAttackAnimationServerRpc();*/
+        AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage);
+    }
+
+    [ServerRpc]
+    private void AttackHandlerServerRpc(Vector2 damageCenter, Vector2 damageSize, float damage)
+    {
+        var targets = Physics2D.OverlapBoxAll(damageCenter, damageSize, 0, targetLayer);
+        foreach (var target in targets)
+            if (target.TryGetComponent(out HealthSystem targetHealth))
+                targetHealth.TakeDamage(damage);
+    }
+
+    [ServerRpc]
+    private void PlayAttackAnimationServerRpc()
+    {
+        PlayAttackAnimationClientRpc();
+    }
+
+    [ClientRpc]
+    private void PlayAttackAnimationClientRpc()
+    {
+        attackIndex = attackIndex == 1 ? 2 : 1;
+        animator.SetInteger("attackIndex", attackIndex);
+        animator.SetTrigger("attack");
+        animator.SetBool("isAttacking", true);
+        Invoke(nameof(ResetAttackServerRpc), 0.375f);
+    }
+
+    [ServerRpc]
+    private void ResetAttackServerRpc()
+    {
+        ResetAttackClientRpc();
+    }
+
+    [ClientRpc]
+    private void ResetAttackClientRpc()
+    {
+        animator.SetBool("isAttacking", false);
+        animator.SetInteger("attackIndex", 0);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        var offset = spriteRenderer != null && spriteRenderer.flipX
+            ? new Vector2(-attackOffset.x, attackOffset.y)
+            : attackOffset;
+        Gizmos.DrawWireCube((Vector2)transform.position + offset, attackSize);
+    }
+}

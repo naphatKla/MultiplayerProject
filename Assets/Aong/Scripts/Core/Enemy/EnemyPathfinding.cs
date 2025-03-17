@@ -5,7 +5,7 @@ using UnityEngine.AI;
 public class EnemyPathfinding : NetworkBehaviour
 {
     private NavMeshAgent agent;
-    [SerializeField] private Transform target;
+    [SerializeField] public Transform target;
     public float detectionRadius = 5f;
     public LayerMask playerLayer;
     private Vector2 startPosition;

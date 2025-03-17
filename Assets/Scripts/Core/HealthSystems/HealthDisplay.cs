@@ -17,7 +17,7 @@ namespace Core.HealthSystems
             if (!IsClient || health == null || healthBarImage == null) return;
 
             // Health Bar Enemy
-            if (!showToEveryone)
+            if (!showToEveryone && !IsOwner)
             {
                 healthBarImage.gameObject.SetActive(false);
                 healthBarBgImage.gameObject.SetActive(false);
@@ -39,7 +39,12 @@ namespace Core.HealthSystems
 
         private void HandleHealthChanged(float oldHealth, float newHealth)
         {
-            healthBarImage.fillAmount = newHealth / health.MaxHealth;
+            float healthPercentage = newHealth / health.MaxHealth;
+            healthBarImage.fillAmount = healthPercentage;
+            
+            bool isFullHealth = Mathf.Approximately(healthPercentage, 1f);
+            healthBarImage.gameObject.SetActive(!isFullHealth);
+            if (healthBarBgImage != null) healthBarBgImage.gameObject.SetActive(!isFullHealth);
         }
     }
 }

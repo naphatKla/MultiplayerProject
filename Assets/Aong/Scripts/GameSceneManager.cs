@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 public class GameSceneManager : MonoBehaviour
 {
-    private const string GameSceneName = "Main";
+    [SerializeField] private string GameSceneName;
     
     private IEnumerator Start()
     {

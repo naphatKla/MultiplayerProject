@@ -561,8 +561,7 @@ MonoBehaviour:
   offset: {x: 0.9, y: -0.32}
   targetLayer:
     serializedVersion: 2
-    m_Bits: 8
-  isAttacking: 0
+    m_Bits: 4104
   attackIndex: 1
   spriteRenderer: {fileID: 8688667412604255078}
   animator: {fileID: 2587009846733415165}

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.HealthSystems
+namespace Core.VoteSystems
 {
     public class VoteSystem : MonoBehaviour
     {
@@ -12,7 +12,7 @@ namespace Core.HealthSystems
         private int _currentVoteCount;
         private List<ulong> voterIDList;
         public Action onVoteAction;
-        
+            
         public void AddVote(ulong voterId)
         {
             if (voterIDList.Contains(voterId)) return; // this player have already voted

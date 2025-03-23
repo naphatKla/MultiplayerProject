@@ -1,21 +1,22 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Core.VoteSystems
 {
     public class VoteUI : MonoBehaviour
     {
-        [SerializeField] private Image checkImage;
+        [SerializeField] private Image checkUIImage;
         private Vector2 originalScale = Vector2.one;
         private Vector2 checkOriginalScale = Vector2.one;
 
         private void Start()
         {
             originalScale = transform.localScale;
-            checkOriginalScale = checkImage.transform.localScale;
+            checkOriginalScale = checkUIImage.transform.localScale;
         }
-
+        
         public void Initialize()
         {
             transform.localScale = Vector2.zero;
@@ -24,9 +25,9 @@ namespace Core.VoteSystems
 
         public void PlayCheck()
         {
-            checkImage.gameObject.SetActive(true);
-            checkImage.transform.localScale = Vector2.zero;
-            checkImage.transform.DOScale(checkOriginalScale.x, 0.3f).SetEase(Ease.InExpo);
+            checkUIImage.gameObject.SetActive(true);
+            checkUIImage.transform.localScale = Vector2.zero;
+            checkUIImage.transform.DOScale(checkOriginalScale.x, 0.3f).SetEase(Ease.InExpo);
         }
     }
 }

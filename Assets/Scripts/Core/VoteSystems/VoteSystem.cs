@@ -25,6 +25,7 @@ namespace Core.VoteSystems
                 InitializeUI();
             }
             if (voterIDList.Contains(voterId)) return; // this player have already voted
+            
             voteUIObjectList[_currentVoteCount].PlayCheck();
             _currentVoteCount = Mathf.Clamp(_currentVoteCount + 1, 0, _maxVoteCount);
             _currentVoteRate = _currentVoteCount / _maxVoteCount;

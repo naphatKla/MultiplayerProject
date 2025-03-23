@@ -7,7 +7,7 @@ public class StartupSceneLoader
 {
     static StartupSceneLoader()
     {
-        EditorApplication.playModeStateChanged += LoadStartupScene;
+        //EditorApplication.playModeStateChanged += LoadStartupScene;
     }
 
     private static void LoadStartupScene(PlayModeStateChange state)

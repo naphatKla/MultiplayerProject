@@ -19,14 +19,14 @@ namespace Core.VoteSystems
         public void Initialize()
         {
             transform.localScale = Vector2.zero;
-            transform.DOScale(originalScale.x, 0.3f).SetEase(Ease.InExpo);
+            transform.DOScale(originalScale.x, 0.5f).SetEase(Ease.OutBounce);
         }
 
         public void PlayCheck()
         {
             checkUIImage.gameObject.SetActive(true);
             checkUIImage.transform.localScale = Vector2.zero;
-            checkUIImage.transform.DOScale(checkOriginalScale.x, 0.3f).SetEase(Ease.InExpo);
+            checkUIImage.transform.DOScale(checkOriginalScale.x, 0.5f).SetEase(Ease.OutBounce);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -42,14 +43,8 @@ namespace Core.VoteSystems
 
         private void InitializeUI()
         {
-            for (int i = 0; i < _maxVoteCount; i++)
-            {
-                VoteUI voteUIInstant = Instantiate(voteUIPrefab, voteUICanvas.transform);
-                voteUIObjectList.Add(voteUIInstant);
-                voteUIInstant.Initialize();
-            }
-
             _isInitialized = true;
+            StartCoroutine(InitWithDelay(0.075f));
         }
 
         private void VoteActionPerform()
@@ -63,6 +58,17 @@ namespace Core.VoteSystems
             foreach (VoteUI voteUI in voteUIObjectList)
                 Destroy(voteUI.gameObject);
             voteUIObjectList.Clear();
+        }
+
+        private IEnumerator InitWithDelay(float delayPerUnit)
+        {
+            for (int i = 0; i < _maxVoteCount; i++)
+            {
+                VoteUI voteUIInstant = Instantiate(voteUIPrefab, voteUICanvas.transform);
+                voteUIObjectList.Add(voteUIInstant);
+                voteUIInstant.Initialize();
+                yield return new WaitForSeconds(delayPerUnit);
+            }
         }
     }
 }

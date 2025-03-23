@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Core.VoteSystems
@@ -10,11 +9,11 @@ namespace Core.VoteSystems
         [SerializeField] private float approvalRate = 0.5f;
         [Header("UI")] [SerializeField] private VoteUI voteUIPrefab;
         [SerializeField] private Canvas voteUICanvas;
-        private List<VoteUI> voteUIObjectList;
+        private List<VoteUI> voteUIObjectList = new List<VoteUI>();
         private int _currentVoteRate;
         private int _maxVoteCount = 4;
         private int _currentVoteCount;
-        private List<ulong> voterIDList;
+        private List<ulong> voterIDList = new List<ulong>();
         public Action onVoteAction;
         private bool _isInitialized;
         
@@ -23,6 +22,7 @@ namespace Core.VoteSystems
             if (!_isInitialized)
             {
                 InitializeUI();
+                return;
             }
             if (voterIDList.Contains(voterId)) return; // this player have already voted
             
@@ -34,12 +34,19 @@ namespace Core.VoteSystems
             VoteActionPerform();
         }
 
+        private void Update()
+        {
+            if (UnityEngine.Input.GetMouseButtonDown(1)) 
+                AddVote(1);
+        }
+
         private void InitializeUI()
         {
             for (int i = 0; i < _maxVoteCount; i++)
             {
-                voteUIObjectList.Add(Instantiate(voteUIPrefab, voteUICanvas.transform));
-                voteUIPrefab.Initialize();
+                VoteUI voteUIInstant = Instantiate(voteUIPrefab, voteUICanvas.transform);
+                voteUIObjectList.Add(voteUIInstant);
+                voteUIInstant.Initialize();
             }
 
             _isInitialized = true;

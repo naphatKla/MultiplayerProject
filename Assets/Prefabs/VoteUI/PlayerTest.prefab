@@ -78,7 +78,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 0.5
+  m_Spacing: 0.25
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -733,8 +733,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approvalRate: 0.5
-  voteUIPrefab: {fileID: 0}
-  voteUICanvas: {fileID: 0}
+  voteUIPrefab: {fileID: 3979383132382834378, guid: f05e07e4df6f5e4408365a6b4ce344e2, type: 3}
+  voteUICanvas: {fileID: 6161422022570753274}
 --- !u!50 &7411390534532146521
 Rigidbody2D:
   serializedVersion: 5

@@ -102,7 +102,7 @@ public class ObjectiveManager : NetworkBehaviour
                 if (networkObject != null)
                 {
                     var obj = networkObject.gameObject;
-                    if (obj.activeSelf) obj.SetActive(false);
+                    obj.SetActive(!obj.activeSelf);
                 }
     }
 

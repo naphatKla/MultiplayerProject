@@ -523,6 +523,7 @@ GameObject:
   - component: {fileID: 238330312929066286}
   - component: {fileID: 868513589705877479}
   - component: {fileID: 8430911948133332212}
+  - component: {fileID: 1549311065625727033}
   - component: {fileID: 7411390534532146521}
   - component: {fileID: 3631358779522738814}
   m_Layer: 3
@@ -565,7 +566,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3229957862
+  GlobalObjectIdHash: 1388020538
   InScenePlacedSourceGlobalObjectIdHash: 2426418765
   DeferredDespawnTick: 0
   Ownership: 1
@@ -732,9 +733,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4780c153756c36847adcd9642f938ee9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   approvalRate: 0.5
+--- !u!114 &1549311065625727033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053161922813697055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de51ea46c407aa549ac887bc2bb88e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  voteSystem: {fileID: 8430911948133332212}
+  canvasUI: {fileID: 6161422022570753274}
   voteUIPrefab: {fileID: 3979383132382834378, guid: f05e07e4df6f5e4408365a6b4ce344e2, type: 3}
-  voteUICanvas: {fileID: 6161422022570753274}
 --- !u!50 &7411390534532146521
 Rigidbody2D:
   serializedVersion: 5

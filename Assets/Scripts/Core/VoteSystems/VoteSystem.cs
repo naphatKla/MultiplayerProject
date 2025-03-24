@@ -1,73 +1,91 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Core.VoteSystems
 {
-    public class VoteSystem : MonoBehaviour
+    public class VoteSystem : NetworkBehaviour
     {
         [SerializeField] private float approvalRate = 0.5f;
-        [Header("UI")] [SerializeField] private VoteUI voteUIPrefab;
-        [SerializeField] private Canvas voteUICanvas;
-        private List<VoteUI> voteUIObjectList = new List<VoteUI>();
-        private int _currentVoteRate;
-        private int _maxVoteCount = 4;
+        [SerializeField] private float voteDuration = 15f;
+        private readonly List<ulong> _voterIDList = new List<ulong>();
+        private int _maxVoteCount;
         private int _currentVoteCount;
-        private List<ulong> voterIDList = new List<ulong>();
-        public Action onVoteAction;
-        private bool _isInitialized;
+        private bool _isVoteStarted;
+   
+        public Action<int> OnVoteStart { get; set; }
+        public Action<int> OnVoteReceive { get; set; }
+        public Action<float> OnVoteProgressCountdown { get; set; } 
+        public Action OnVoteSucceed { get; set; }
+        public Action OnVoteReset { get; set; }
         
         public void AddVote(ulong voterId)
         {
-            if (!_isInitialized)
-            {
-                InitializeUI();
-                return;
-            }
-            if (voterIDList.Contains(voterId)) return; // this player have already voted
-            
-            voteUIObjectList[_currentVoteCount].PlayCheck();
+            if (_voterIDList.Contains(voterId)) return; // this player have already voted
+            OnVoteReceive?.Invoke(_currentVoteCount);
             _currentVoteCount = Mathf.Clamp(_currentVoteCount + 1, 0, _maxVoteCount);
-            _currentVoteRate = _currentVoteCount / _maxVoteCount;
+            _voterIDList.Add(voterId);
             
-            if (_currentVoteRate < approvalRate) return;
-            VoteActionPerform();
+            float currentVoteRate = (float)_currentVoteCount / _maxVoteCount;
+            if (currentVoteRate < approvalRate) return;
+            OnVoteSucceed?.Invoke();
         }
 
         private void Update()
         {
-            if (UnityEngine.Input.GetMouseButtonDown(1)) 
+            if (UnityEngine.Input.GetMouseButtonDown(1))
+            {
+                if (!_isVoteStarted)
+                {
+                    StartVote();
+                    return;
+                }
+                
                 AddVote(1);
+            }
         }
 
-        private void InitializeUI()
+        private void StartVote()
         {
-            _isInitialized = true;
-            StartCoroutine(InitWithDelay(0.075f));
+            if (_isVoteStarted) return;
+            _isVoteStarted = true;
+            OnVoteStart?.Invoke(GetActivePlayer() - 1);
+            StartCoroutine(VoteUpdateProgress());
         }
-
-        private void VoteActionPerform()
-        {
-            onVoteAction?.Invoke();
-        }
-
+        
         private void ResetVote()
         {
-            _isInitialized = false;
-            foreach (VoteUI voteUI in voteUIObjectList)
-                Destroy(voteUI.gameObject);
-            voteUIObjectList.Clear();
+            _voterIDList.Clear();
+            OnVoteReset?.Invoke();
+            _isVoteStarted = false;
         }
 
-        private IEnumerator InitWithDelay(float delayPerUnit)
+        private int GetActivePlayer()
         {
-            for (int i = 0; i < _maxVoteCount; i++)
+            int playerAliveCount = 0;
+
+            foreach (var kvp in NetworkManager.Singleton.ConnectedClients)
             {
-                VoteUI voteUIInstant = Instantiate(voteUIPrefab, voteUICanvas.transform);
-                voteUIObjectList.Add(voteUIInstant);
-                voteUIInstant.Initialize();
-                yield return new WaitForSeconds(delayPerUnit);
+                var client = kvp.Value;
+                if (!client?.PlayerObject) continue;
+                if (!client.PlayerObject.gameObject.activeSelf) continue;
+                playerAliveCount++;
+            }
+
+            return playerAliveCount;
+        }
+
+        private IEnumerator VoteUpdateProgress()
+        {
+            float timeCount = voteDuration;
+            while (timeCount > 0)
+            {
+                float timeProgressionLeft = timeCount / voteDuration;
+                OnVoteProgressCountdown?.Invoke(timeProgressionLeft);
+                yield return new WaitForSeconds(0.2f);
+                timeCount -= 0.2f;
             }
         }
     }

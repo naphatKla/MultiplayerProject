@@ -49,7 +49,6 @@ namespace Core.VoteSystems
         public void AddVote(ulong voterId)
         {
             //if (_voterIDList.Contains(voterId)) return; // this player have already voted
-            Debug.Log(_currentVoteCount);
             OnVoteReceive?.Invoke(_currentVoteCount);
             _currentVoteCount = Mathf.Clamp(_currentVoteCount + 1, 0, _maxVoteCount);
             _voterIDList.Add(voterId);
@@ -91,6 +90,7 @@ namespace Core.VoteSystems
                 yield return new WaitForSeconds(0.2f);
                 timeCount -= 0.2f;
             }
+            ResetVote();
         }
     }
 }

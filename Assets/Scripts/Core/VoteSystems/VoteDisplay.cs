@@ -1,35 +1,38 @@
 using System.Collections.Generic;
+using Core.VoteSystems.UI;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Core.VoteSystems
 {
     public class VoteDisplay : MonoBehaviour
     {
-        [Header("Dependencies")]
-        [SerializeField] private VoteSystem voteSystem;
-        [SerializeField] private Canvas canvasUI;
+        [Header("Dependencies")] [SerializeField]
+        private VoteSystem voteSystem;
 
-        [Header("UI")] 
+        [SerializeField] private Transform voteUIParent;
+        [SerializeField] private Transform voteCountdownUIParent;
+
+        [Header("UI Prefab")] 
         [SerializeField] private VoteUI voteUIPrefab;
-        [SerializeField] private Image voteTimeCountdownUI;
-        [SerializeField] private Image voteTimeCountdownBG;
+        [SerializeField] private VoteCountdownUI voteCountdownUIPrefab;
+
         private readonly List<VoteUI> _voteUIInstances = new List<VoteUI>();
-        
+        private VoteCountdownUI _countdownUIInstance;
+
         private void OnEnable()
         {
             voteSystem.OnVoteStart += InitializeUI;
             voteSystem.OnVoteReceive += AddVoteDisplay;
-            voteSystem.OnVoteProgressCountdown += UpdateTimeCountdownUI;
-            voteSystem.OnVoteReset += ResetAllUI;
+            voteSystem.OnVoteProgressCountdown += UpdateCountdownProgression;
+            voteSystem.OnVoteReset += ResetAndCloseAllUI;
         }
 
         private void OnDisable()
         {
             voteSystem.OnVoteStart -= InitializeUI;
             voteSystem.OnVoteReceive -= AddVoteDisplay;
-            voteSystem.OnVoteProgressCountdown -= UpdateTimeCountdownUI;
-            voteSystem.OnVoteReset -= ResetAllUI;
+            voteSystem.OnVoteProgressCountdown -= UpdateCountdownProgression;
+            voteSystem.OnVoteReset -= ResetAndCloseAllUI;
         }
 
         private void InitializeUI(int maxCount)
@@ -39,13 +42,19 @@ namespace Core.VoteSystems
             {
                 if (i >= instantiatedCount)
                 {
-                    var newVoteUIObj = Instantiate(voteUIPrefab, canvasUI.transform);
+                    var newVoteUIObj = Instantiate(voteUIPrefab, voteUIParent);
                     _voteUIInstances.Add(newVoteUIObj);
                 }
+
+                _voteUIInstances[i].gameObject.SetActive(true);
                 _voteUIInstances[i].PlayBorderAnimation();
             }
-            voteTimeCountdownUI.gameObject.SetActive(true);
-            voteTimeCountdownBG.gameObject.SetActive(true);
+
+            if (!_countdownUIInstance)
+                _countdownUIInstance = Instantiate(voteCountdownUIPrefab, voteCountdownUIParent);
+
+            _countdownUIInstance.gameObject.SetActive(true);
+            _countdownUIInstance.PlayStartAnimation();
         }
 
         private void AddVoteDisplay(int currentIndex)
@@ -54,18 +63,22 @@ namespace Core.VoteSystems
             _voteUIInstances[currentIndex].PlayCheckAnimation();
         }
 
-        private void ResetAllUI()
+        private void UpdateCountdownProgression(float progression)
         {
-            foreach (var instance in _voteUIInstances)
-                instance.ResetUI();
-            
-            voteTimeCountdownUI.gameObject.SetActive(false);
-            voteTimeCountdownBG.gameObject.SetActive(false);
+            if (!_countdownUIInstance) return;
+            _countdownUIInstance.UpdateProgression(progression);
         }
 
-        private void UpdateTimeCountdownUI(float timeProgression)
+    private void ResetAndCloseAllUI()
         {
-            voteTimeCountdownUI.fillAmount = timeProgression;
+            foreach (var instance in _voteUIInstances)
+            {
+                instance.ResetUI();
+                instance.gameObject.SetActive(false);
+            }
+            
+            _countdownUIInstance.ResetUI();
+            _countdownUIInstance.gameObject.SetActive(false);
         }
     }
 }

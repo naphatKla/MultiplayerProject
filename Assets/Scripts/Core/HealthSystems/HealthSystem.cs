@@ -8,7 +8,9 @@ namespace Core.HealthSystems
     {
         [field: SerializeField] public float MaxHealth { get; private set; } = 100;
         [SerializeField] public NetworkVariable<float> currentHealth = new NetworkVariable<float>();
-        public Action<HealthSystem> onDie;
+        
+        public Action OnDie { get; set; }
+        public Action<ulong> OnTakeDamageFromPlayer { get; set; }
         public Action onTakeDamage;
         private NetworkVariable<bool> isDead = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server); // เปลี่ยนเป็น Server
 
@@ -22,22 +24,35 @@ namespace Core.HealthSystems
                 currentHealth.Value = MaxHealth;
             }
         }
-
-        public void TakeDamage(float damageValue)
+        
+        public void TakeDamage(float damageValue, ulong? attackerID = null)
         {
             if (!IsServer) return;
             ModifyHealth(-damageValue);
-            TakeDamageOnClientRpc();
+            if (attackerID == null)
+            {
+                TakeDamageOnClientRpc();
+                return;
+            }
+            TakeDamageOnClientRpc(attackerID.Value);
         }
-
+        
         [ClientRpc]
-        public void TakeDamageOnClientRpc()
+        private void TakeDamageOnClientRpc()
         {
             if (animator != null)
             {
                 animator.SetTrigger("isHurt");
             }
             onTakeDamage?.Invoke();
+        }
+        
+        [ClientRpc]
+        private void TakeDamageOnClientRpc(ulong attackerID)
+        {
+            TakeDamageOnClientRpc();
+            Debug.LogWarning("TakeDamage FromPlayer");
+            OnTakeDamageFromPlayer?.Invoke(attackerID);
         }
 
         public void RestoreHealth(float healValue)
@@ -69,12 +84,13 @@ namespace Core.HealthSystems
             {
                 animator.SetTrigger("isDead");
             }
-            onDie?.Invoke(this);
+            Debug.LogWarning("DIE");
+            OnDie?.Invoke();
             isDead.Value = true;
             
             if (IsServer)
             {
-                Destroy(gameObject, 1f);
+                //Destroy(gameObject, 1f);
             }
         }
     }

@@ -725,6 +725,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  healthSystem: {fileID: 4762467204580182300}
   approvalRate: 0.5
   voteDuration: 15
 --- !u!114 &1549311065625727033

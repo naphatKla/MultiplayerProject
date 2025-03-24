@@ -52,7 +52,6 @@ namespace Core.CombatSystems
             //if (isAttacking.Value) return;
 
             PlayAttackAnimationServerRpc();
-
             AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage, NetworkObjectId);
         }
 
@@ -65,18 +64,18 @@ namespace Core.CombatSystems
         [ClientRpc]
         private void PlayAttackAnimationClientRpc()
         {
-            if (attackIndex == 1)
+            attackIndex = attackIndex switch
             {
-                attackIndex = 2;
-            }
-            else if (attackIndex == 2)
-            {
-                attackIndex = 1;
-            }
+                1 => 2,
+                2 => 1,
+                _ => attackIndex
+            };
 
             animator.SetInteger("attackIndex", attackIndex);
             animator.SetTrigger("attack");
             animator.SetBool("isAttacking", true);
+
+            if (!IsOwner) return;
             Invoke("ResetAttackServerRpc", 0.375f);
         }
 
@@ -106,7 +105,7 @@ namespace Core.CombatSystems
             {
                 if (!target.TryGetComponent(out HealthSystem targetHealth)) continue;
                 if (targetHealth.NetworkObjectId == attackerID) continue;
-                targetHealth.TakeDamage(damage);
+                targetHealth.TakeDamage(damage, attackerID);
                 Debug.Log($"Hit {target.name} : {damage} damage");
             }
         }

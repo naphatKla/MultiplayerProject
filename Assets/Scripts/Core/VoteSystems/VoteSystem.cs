@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core.HealthSystems;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,6 +9,10 @@ namespace Core.VoteSystems
 {
     public class VoteSystem : NetworkBehaviour
     {
+        [Header("Dependencies")]
+        [SerializeField] private HealthSystem healthSystem;
+        
+        [Header("")]
         [SerializeField] private float approvalRate = 0.5f;
         [SerializeField] private float voteDuration = 15f;
         private readonly List<ulong> _voterIDList = new List<ulong>();
@@ -20,35 +25,37 @@ namespace Core.VoteSystems
         public Action<float> OnVoteProgressCountdown { get; set; } 
         public Action OnVoteSucceed { get; set; }
         public Action OnVoteReset { get; set; }
-        
-        private void Update()
+
+        private void OnEnable()
         {
-            if (UnityEngine.Input.GetMouseButtonDown(1))
-            {
-                if (!_isVoteStarted)
-                {
-                    StartVote();
-                    return;
-                }
-                
-                AddVote(1);
-            }
+            if (!IsServer) return;
+            healthSystem.OnDie += StartVoteClientRPC;
+            healthSystem.OnTakeDamageFromPlayer += AddVoteClientRPC;
+        }
+
+        private void OnDisable()
+        {
+            if (!IsServer) return;
+            healthSystem.OnDie -= StartVoteClientRPC;
+            healthSystem.OnTakeDamageFromPlayer -= AddVoteClientRPC;
         }
         
-        private void StartVote()
+        [ClientRpc]
+        private void StartVoteClientRPC()
         {
             if (_isVoteStarted) return;
             _isVoteStarted = true;
-            //_maxVoteCount = GetActivePlayer() - 1;
-            //OnVoteStart?.Invoke(GetActivePlayer() - 1);
-            _maxVoteCount = 4;
-            OnVoteStart?.Invoke(_maxVoteCount);
+            _maxVoteCount = GetActivePlayer() - 1;
+            if (_maxVoteCount <= 1) return;
+            OnVoteStart?.Invoke(GetActivePlayer() - 1);
             StartCoroutine(VoteUpdateProgress());
         }
         
-        public void AddVote(ulong voterId)
+        [ClientRpc]
+        private void AddVoteClientRPC(ulong voterId)
         {
-            //if (_voterIDList.Contains(voterId)) return; // this player have already voted
+            if (!_isVoteStarted) return;
+            if (_voterIDList.Contains(voterId)) return; // this player have already voted
             OnVoteReceive?.Invoke(_currentVoteCount);
             _currentVoteCount = Mathf.Clamp(_currentVoteCount + 1, 0, _maxVoteCount);
             _voterIDList.Add(voterId);
@@ -58,7 +65,8 @@ namespace Core.VoteSystems
             OnVoteSucceed?.Invoke();
         }
         
-        private void ResetVote()
+        [ClientRpc]
+        private void ResetVoteClientRPC()
         {
             _voterIDList.Clear();
             OnVoteReset?.Invoke();
@@ -90,7 +98,7 @@ namespace Core.VoteSystems
                 yield return new WaitForSeconds(0.2f);
                 timeCount -= 0.2f;
             }
-            ResetVote();
+            ResetVoteClientRPC();
         }
     }
 }

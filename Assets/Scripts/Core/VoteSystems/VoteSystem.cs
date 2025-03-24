@@ -21,18 +21,6 @@ namespace Core.VoteSystems
         public Action OnVoteSucceed { get; set; }
         public Action OnVoteReset { get; set; }
         
-        public void AddVote(ulong voterId)
-        {
-            if (_voterIDList.Contains(voterId)) return; // this player have already voted
-            OnVoteReceive?.Invoke(_currentVoteCount);
-            _currentVoteCount = Mathf.Clamp(_currentVoteCount + 1, 0, _maxVoteCount);
-            _voterIDList.Add(voterId);
-            
-            float currentVoteRate = (float)_currentVoteCount / _maxVoteCount;
-            if (currentVoteRate < approvalRate) return;
-            OnVoteSucceed?.Invoke();
-        }
-
         private void Update()
         {
             if (UnityEngine.Input.GetMouseButtonDown(1))
@@ -46,13 +34,29 @@ namespace Core.VoteSystems
                 AddVote(1);
             }
         }
-
+        
         private void StartVote()
         {
             if (_isVoteStarted) return;
             _isVoteStarted = true;
-            OnVoteStart?.Invoke(GetActivePlayer() - 1);
+            //_maxVoteCount = GetActivePlayer() - 1;
+            //OnVoteStart?.Invoke(GetActivePlayer() - 1);
+            _maxVoteCount = 4;
+            OnVoteStart?.Invoke(_maxVoteCount);
             StartCoroutine(VoteUpdateProgress());
+        }
+        
+        public void AddVote(ulong voterId)
+        {
+            //if (_voterIDList.Contains(voterId)) return; // this player have already voted
+            Debug.Log(_currentVoteCount);
+            OnVoteReceive?.Invoke(_currentVoteCount);
+            _currentVoteCount = Mathf.Clamp(_currentVoteCount + 1, 0, _maxVoteCount);
+            _voterIDList.Add(voterId);
+            
+            float currentVoteRate = (float)_currentVoteCount / _maxVoteCount;
+            if (currentVoteRate < approvalRate) return;
+            OnVoteSucceed?.Invoke();
         }
         
         private void ResetVote()

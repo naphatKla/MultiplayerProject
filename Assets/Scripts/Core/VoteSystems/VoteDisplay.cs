@@ -13,6 +13,7 @@ namespace Core.VoteSystems
         [Header("UI")] 
         [SerializeField] private VoteUI voteUIPrefab;
         [SerializeField] private Image voteTimeCountdownUI;
+        [SerializeField] private Image voteTimeCountdownBG;
         private readonly List<VoteUI> _voteUIInstances = new List<VoteUI>();
         
         private void OnEnable()
@@ -43,6 +44,8 @@ namespace Core.VoteSystems
                 }
                 _voteUIInstances[i].PlayBorderAnimation();
             }
+            voteTimeCountdownUI.gameObject.SetActive(true);
+            voteTimeCountdownBG.gameObject.SetActive(true);
         }
 
         private void AddVoteDisplay(int currentIndex)
@@ -55,6 +58,9 @@ namespace Core.VoteSystems
         {
             foreach (var instance in _voteUIInstances)
                 instance.ResetUI();
+            
+            voteTimeCountdownUI.gameObject.SetActive(false);
+            voteTimeCountdownBG.gameObject.SetActive(false);
         }
 
         private void UpdateTimeCountdownUI(float timeProgression)

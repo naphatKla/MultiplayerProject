@@ -28,20 +28,17 @@ namespace Core.VoteSystems
 
         private void OnEnable()
         {
-            if (!IsServer) return;
-            healthSystem.OnDie += StartVoteClientRPC;
-            healthSystem.OnTakeDamageFromPlayer += AddVoteClientRPC;
+            healthSystem.OnDie += StartVote;
+            healthSystem.OnTakeDamageFromPlayer += AddVote;
         }
 
         private void OnDisable()
         {
-            if (!IsServer) return;
-            healthSystem.OnDie -= StartVoteClientRPC;
-            healthSystem.OnTakeDamageFromPlayer -= AddVoteClientRPC;
+            healthSystem.OnDie -= StartVote;
+            healthSystem.OnTakeDamageFromPlayer -= AddVote;
         }
-        
-        [ClientRpc]
-        private void StartVoteClientRPC()
+
+        private void StartVote()
         {
             if (_isVoteStarted) return;
             _isVoteStarted = true;
@@ -50,9 +47,8 @@ namespace Core.VoteSystems
             OnVoteStart?.Invoke(GetActivePlayer() - 1);
             StartCoroutine(VoteUpdateProgress());
         }
-        
-        [ClientRpc]
-        private void AddVoteClientRPC(ulong voterId)
+
+        private void AddVote(ulong voterId)
         {
             if (!_isVoteStarted) return;
             if (_voterIDList.Contains(voterId)) return; // this player have already voted

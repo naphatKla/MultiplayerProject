@@ -12,23 +12,22 @@ namespace Core.HealthSystems
         public Action OnDie { get; set; }
         public Action<ulong> OnTakeDamageFromPlayer { get; set; }
         public Action onTakeDamage;
-        private NetworkVariable<bool> isDead = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server); // เปลี่ยนเป็น Server
+        private NetworkVariable<bool> isDead = new NetworkVariable<bool>();
 
         [Header("Components")]
         [SerializeField] private Animator animator;
 
         public override void OnNetworkSpawn()
         {
-            if (IsServer)
-            {
-                currentHealth.Value = MaxHealth;
-            }
+            if (!IsServer) return;
+            currentHealth.Value = MaxHealth;
         }
         
         public void TakeDamage(float damageValue, ulong? attackerID = null)
         {
             if (!IsServer) return;
             ModifyHealth(-damageValue);
+            
             if (attackerID == null)
             {
                 TakeDamageOnClientRpc();
@@ -40,10 +39,9 @@ namespace Core.HealthSystems
         [ClientRpc]
         private void TakeDamageOnClientRpc()
         {
-            if (animator != null)
-            {
+            if (animator)
                 animator.SetTrigger("isHurt");
-            }
+            
             onTakeDamage?.Invoke();
         }
         
@@ -51,7 +49,6 @@ namespace Core.HealthSystems
         private void TakeDamageOnClientRpc(ulong attackerID)
         {
             TakeDamageOnClientRpc();
-            Debug.LogWarning("TakeDamage FromPlayer");
             OnTakeDamageFromPlayer?.Invoke(attackerID);
         }
 
@@ -68,30 +65,18 @@ namespace Core.HealthSystems
             currentHealth.Value = Mathf.Clamp(newHealth, 0, MaxHealth);
 
             if (currentHealth.Value > 0f) return;
-            DeadOnServerRpc();
-        }
-
-        [ServerRpc]
-        private void DeadOnServerRpc()
-        {
+            isDead.Value = true;
             DeadOnClientRpc();
         }
-
+        
         [ClientRpc]
         private void DeadOnClientRpc()
         {
-            if (animator != null)
-            {
+            if (animator)
                 animator.SetTrigger("isDead");
-            }
+            
             Debug.LogWarning("DIE");
             OnDie?.Invoke();
-            isDead.Value = true;
-            
-            if (IsServer)
-            {
-                //Destroy(gameObject, 1f);
-            }
         }
     }
 }

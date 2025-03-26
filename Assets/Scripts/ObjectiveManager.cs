@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ public class ObjectiveManager : NetworkBehaviour
     private NetworkList<ulong> objectiveCompleteObjects;
 
     [SerializeField] private List<GameObject> objectsToActivateOnComplete = new();
+
+    [SerializeField] private TMP_Text objectiveText;
 
     public bool CheckObjectiveIsDone()
     {
@@ -37,13 +40,6 @@ public class ObjectiveManager : NetworkBehaviour
         RemoveValueServerRpc();
     }
 
-    private void Start()
-    {
-        if (IsServer)
-            foreach (var obj in objectsToActivateOnComplete)
-                if (obj != null && obj.GetComponent<NetworkObject>() != null)
-                    objectiveCompleteObjects.Add(obj.GetComponent<NetworkObject>().NetworkObjectId);
-    }
 
     private void Awake()
     {
@@ -56,8 +52,20 @@ public class ObjectiveManager : NetworkBehaviour
         Instance = this;
 
         objectiveCompleteObjects = new NetworkList<ulong>(new ulong[] { });
+
+        if (objectiveText != null) objectiveText.text = $"Objective: {objective.Value}/{maxObjective.Value}";
     }
 
+    private void Start()
+    {
+        if (IsServer)
+            foreach (var obj in objectsToActivateOnComplete)
+                if (obj != null && obj.GetComponent<NetworkObject>() != null)
+                    objectiveCompleteObjects.Add(obj.GetComponent<NetworkObject>().NetworkObjectId);
+
+        objective.OnValueChanged += UpdateObjectiveText;
+        maxObjective.OnValueChanged += UpdateObjectiveText;
+    }
 
     private void Update()
     {
@@ -98,16 +106,42 @@ public class ObjectiveManager : NetworkBehaviour
         if (!IsServer) return;
         Debug.Log("Activate");
         foreach (var networkId in objectiveCompleteObjects)
+        {
             if (NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(networkId, out var networkObject))
+            {
                 if (networkObject != null)
                 {
                     var obj = networkObject.gameObject;
-                    obj.SetActive(!obj.activeSelf);
+                    bool newState = !obj.activeSelf;
+                    obj.SetActive(newState);
+                    ActivateObjectClientRpc(networkId, newState);
                 }
+            }
+        }
+    }
+
+    [ClientRpc]
+    private void ActivateObjectClientRpc(ulong networkId, bool state)
+    {
+        if (NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(networkId, out var networkObject))
+        {
+            if (networkObject != null)
+            {
+                networkObject.gameObject.SetActive(state);
+            }
+        }
+    }
+
+    private void UpdateObjectiveText(float oldValue, float newValue)
+    {
+        if (objectiveText != null) objectiveText.text = $"Objective: {objective.Value}/{maxObjective.Value}";
     }
 
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
+
+        objective.OnValueChanged -= UpdateObjectiveText;
+        maxObjective.OnValueChanged -= UpdateObjectiveText;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
@@ -13,6 +14,7 @@ public class EnemyPathfinding : NetworkBehaviour
     private readonly float positionThreshold = 0.1f;
 
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator animator;
 
     private void Start()
     {
@@ -40,12 +42,33 @@ public class EnemyPathfinding : NetworkBehaviour
             else
                 agent.SetDestination(startPosition);
 
+            if(Vector2.Distance(transform.position, agent.destination) > positionThreshold)
+            {
+                PlayRunAnimationServerRpc(true);
+            }
+            else
+            {
+                PlayRunAnimationServerRpc(false);
+            }
+
             if (Vector2.Distance(transform.position, lastSentPosition) > positionThreshold)
             {
                 lastSentPosition = transform.position;
                 UpdatePositionClientRpc(transform.position);
             }
         }
+    }
+
+    [ServerRpc]
+    private void PlayRunAnimationServerRpc(bool isTrue)
+    {
+        PlayRunAnimationClientRpc(isTrue);
+    }
+
+    [ClientRpc]
+    private void PlayRunAnimationClientRpc(bool isTrue)
+    {
+        animator.SetBool("isMoving", isTrue);
     }
 
     [ClientRpc]

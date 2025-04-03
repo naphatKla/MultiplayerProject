@@ -12,9 +12,8 @@ namespace Core.MovementSystems
         [Space] [Header("Dependencies")] [SerializeField] private Rigidbody2D rb;
         [SerializeField] private SpriteRenderer spriteRenderer;
         private Vector2 movementInput;
-
-        private NetworkVariable<bool> isMoving = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
-        private NetworkVariable<bool> isRunning = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<bool> isMoving = new NetworkVariable<bool>();
+        private NetworkVariable<bool> isRunning = new NetworkVariable<bool>();
 
         [Header("Components")]
         [SerializeField] private Animator animator;
@@ -57,36 +56,22 @@ namespace Core.MovementSystems
         {
             Vector2 newPos = rb.position + movementInput * (curPlayerMoveSpeed * Time.fixedDeltaTime);
             rb.MovePosition(newPos);
-
             PlayMovingAnimationServerRpc();
         }
 
         [ServerRpc]
         private void PlayMovingAnimationServerRpc()
         {
+            isMoving.Value = !(movementInput.magnitude <= 0);
+            isRunning.Value = curPlayerMoveSpeed > 15f;
             PlayMovingAnimationClientRpc();
         }
 
         [ClientRpc]
         private void PlayMovingAnimationClientRpc()
         {
-            if (movementInput.magnitude <= 0)
-            {
-                isMoving.Value = false;
-            }
-            else
-            {
-                isMoving.Value = true;
-            }
-
-            Debug.Log("movementInput.magnitude : " + movementInput.magnitude);
-            animator.SetBool("isMoving", isMoving.Value);
-
-            if (isMoving.Value)
-            {
-                isRunning.Value = curPlayerMoveSpeed > 15f;
-                animator.SetBool("isRunning", isRunning.Value); // Adjust 'someThreshold' based on your speeds
-            }
+            if (!isMoving.Value) return;
+            animator.SetBool("isRunning", isRunning.Value); // Adjust 'someThreshold' based on your speeds
         }
 
         [ServerRpc]

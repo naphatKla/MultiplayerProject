@@ -13,6 +13,8 @@ namespace Feedbacks
         [SerializeField] private SpriteRenderer bodySprite;
         [SerializeField] private Image redScreenFlashUI;
         [SerializeField] private HealthSystem healthSystem;
+        private Tween _spriteTween;
+        private Tween _redScreenTween;
 
         public override void OnNetworkSpawn()
         {
@@ -31,14 +33,16 @@ namespace Feedbacks
         [ClientRpc]
         private void PlayToEveryClientRpc()
         {
-            bodySprite.DOColor(Color.red, 0.2f).SetLoops(2, LoopType.Yoyo);
+            if(_spriteTween.IsActive()) return;
+            _spriteTween = bodySprite.DOColor(Color.red, 0.2f).SetLoops(2, LoopType.Yoyo);
         }
 
         [Rpc(SendTo.Owner)]
         private void PlayOnlyOwnerRpc()
         {
             cameraShakeSource.GenerateImpulse();
-            redScreenFlashUI.DOFade(0.5f, 0.2f).SetLoops(2, LoopType.Yoyo);
+            if (_redScreenTween.IsActive()) return;
+            _redScreenTween = redScreenFlashUI.DOFade(0.5f, 0.2f).SetLoops(2, LoopType.Yoyo);
         }
     }
 }

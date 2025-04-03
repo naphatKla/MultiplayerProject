@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,36 +10,50 @@ namespace Core.HealthSystems
     {
         [field: SerializeField] public float MaxHealth { get; private set; } = 100;
         [SerializeField] public NetworkVariable<float> currentHealth = new NetworkVariable<float>();
-        public Action<HealthSystem> onDie;
+        [SerializeField] private List<Behaviour> disableOnDown;
+        
+        public Action OnDown { get; set; }
+        public Action OnDie { get; set;}
         public Action onTakeDamage;
-        private NetworkVariable<bool> isDead = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server); // เปลี่ยนเป็น Server
+        public Action<ulong> OnTakeDamageFromPlayer { get; set; }
+        private NetworkVariable<bool> isDead = new NetworkVariable<bool>();
 
         [Header("Components")]
         [SerializeField] private Animator animator;
 
         public override void OnNetworkSpawn()
         {
-            if (IsServer)
-            {
-                currentHealth.Value = MaxHealth;
-            }
+            if (!IsServer) return;
+            currentHealth.Value = MaxHealth;
         }
-
-        public void TakeDamage(float damageValue)
+        
+        public void TakeDamage(float damageValue, ulong? attackerID = null)
         {
             if (!IsServer) return;
             ModifyHealth(-damageValue);
-            TakeDamageOnClientRpc();
-        }
-
-        [ClientRpc]
-        public void TakeDamageOnClientRpc()
-        {
-            if (animator != null)
+            
+            if (attackerID == null)
             {
-                animator.SetTrigger("isHurt");
+                TakeDamageOnClientRpc();
+                return;
             }
+            TakeDamageOnClientRpc(attackerID.Value);
+        }
+        
+        [ClientRpc]
+        private void TakeDamageOnClientRpc()
+        {
+            if (animator)
+                animator.SetTrigger("isHurt");
+            
             onTakeDamage?.Invoke();
+        }
+        
+        [ClientRpc]
+        private void TakeDamageOnClientRpc(ulong attackerID)
+        {
+            TakeDamageOnClientRpc();
+            OnTakeDamageFromPlayer?.Invoke(attackerID);
         }
 
         public void RestoreHealth(float healValue)
@@ -53,29 +69,61 @@ namespace Core.HealthSystems
             currentHealth.Value = Mathf.Clamp(newHealth, 0, MaxHealth);
 
             if (currentHealth.Value > 0f) return;
-            DeadOnServerRpc();
+            DownOnClientRpc();
+        }
+        
+        public void Revive(float hpOnRevive)
+        {
+            foreach (var behaviour in disableOnDown)
+                behaviour.enabled = true;
+            
+            if (!IsOwner) return;
+            ReviveServerRPC(hpOnRevive);
         }
 
         [ServerRpc]
-        private void DeadOnServerRpc()
+        private void ReviveServerRPC(float hpOnRevive)
         {
-            DeadOnClientRpc();
+            isDead.Value = false;
+            ModifyHealth(hpOnRevive);
         }
 
+        public void Dead()
+        {
+            if (!IsOwner) return;
+            DeadServerRPC();
+        }
+
+        [ServerRpc]
+        private void DeadServerRPC()
+        {
+            isDead.Value = true;
+            DeadOnClientRpc();
+        }
+        
+        
+        [ClientRpc]
+        private void DownOnClientRpc()
+        {    
+            foreach (var behaviour in disableOnDown)
+                behaviour.enabled = false;
+            
+            OnDown?.Invoke();
+        }
+        
         [ClientRpc]
         private void DeadOnClientRpc()
         {
-            if (animator != null)
-            {
+            if (animator)
                 animator.SetTrigger("isDead");
-            }
-            onDie?.Invoke(this);
-            isDead.Value = true;
             
-            if (IsServer)
+            OnDie?.Invoke();
+            DOVirtual.DelayedCall(0.5f, () =>
             {
-                Destroy(gameObject, 1f);
-            }
+                gameObject.SetActive(false);
+                if (!IsOwner) return;
+                CameraManager.Instance.StartSpectatorMode();
+            });
         }
     }
 }

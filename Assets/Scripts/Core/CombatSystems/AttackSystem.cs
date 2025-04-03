@@ -1,6 +1,5 @@
 using System;
 using Core.HealthSystems;
-using Feedbacks;
 using Input;
 using Unity.Netcode;
 using UnityEngine;
@@ -45,15 +44,32 @@ namespace Core.CombatSystems
             if (!IsOwner) return;
             inputReader.PrimaryAttackEvent += AttackHandler;
         }
+
+        public override void OnNetworkDespawn()
+        {
+            if (!IsOwner) return;
+            inputReader.PrimaryAttackEvent -= AttackHandler;
+        }
         
+        public void OnEnable()
+        {
+            if (!IsOwner) return;
+            inputReader.PrimaryAttackEvent += AttackHandler;
+        }
+
+        public void OnDisable()
+        {
+            if (!IsOwner) return;
+            inputReader.PrimaryAttackEvent -= AttackHandler;
+        }
+
         private void AttackHandler(bool isAttackingInput)
         {
             if (!IsOwner) return;
             if (!isAttackingInput) return;
             //if (isAttacking.Value) return;
-
+            onStartAttack?.Invoke();
             PlayAttackAnimationServerRpc();
-
             AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage, NetworkObjectId);
         }
 
@@ -66,18 +82,18 @@ namespace Core.CombatSystems
         [ClientRpc]
         private void PlayAttackAnimationClientRpc()
         {
-            if (attackIndex == 1)
+            attackIndex = attackIndex switch
             {
-                attackIndex = 2;
-            }
-            else if (attackIndex == 2)
-            {
-                attackIndex = 1;
-            }
+                1 => 2,
+                2 => 1,
+                _ => attackIndex
+            };
 
             animator.SetInteger("attackIndex", attackIndex);
             animator.SetTrigger("attack");
             animator.SetBool("isAttacking", true);
+
+            if (!IsOwner) return;
             Invoke("ResetAttackServerRpc", 0.375f);
         }
 
@@ -107,7 +123,7 @@ namespace Core.CombatSystems
             {
                 if (!target.TryGetComponent(out HealthSystem targetHealth)) continue;
                 if (targetHealth.NetworkObjectId == attackerID) continue;
-                targetHealth.TakeDamage(damage);
+                targetHealth.TakeDamage(damage, attackerID);
                 Debug.Log($"Hit {target.name} : {damage} damage");
             }
         }

@@ -604,6 +604,10 @@ MonoBehaviour:
   <MaxHealth>k__BackingField: 100
   currentHealth:
     m_InternalValue: 0
+  disableOnDown:
+  - {fileID: 6919210253630419978}
+  - {fileID: 1138011606706245361}
+  - {fileID: 868513589705877479}
   animator: {fileID: 2587009846733415165}
 --- !u!114 &-4692630260399668288
 MonoBehaviour:
@@ -726,8 +730,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   healthSystem: {fileID: 4762467204580182300}
-  approvalRate: 0.5
+  approvalRate: 0.6
   voteDuration: 15
+  hpOnRevive: 20
 --- !u!114 &1549311065625727033
 MonoBehaviour:
   m_ObjectHideFlags: 0

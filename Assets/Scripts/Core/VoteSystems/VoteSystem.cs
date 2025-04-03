@@ -15,6 +15,7 @@ namespace Core.VoteSystems
         [Header("")]
         [SerializeField] private float approvalRate = 0.5f;
         [SerializeField] private float voteDuration = 15f;
+        [SerializeField] private float hpOnRevive = 20f;
         private readonly List<ulong> _voterIDList = new List<ulong>();
         private int _maxVoteCount;
         private int _currentVoteCount;
@@ -28,13 +29,13 @@ namespace Core.VoteSystems
 
         private void OnEnable()
         {
-            healthSystem.OnDie += StartVote;
+            healthSystem.OnDown += StartVote;
             healthSystem.OnTakeDamageFromPlayer += AddVote;
         }
 
         private void OnDisable()
         {
-            healthSystem.OnDie -= StartVote;
+            healthSystem.OnDown -= StartVote;
             healthSystem.OnTakeDamageFromPlayer -= AddVote;
         }
 
@@ -43,7 +44,13 @@ namespace Core.VoteSystems
             if (_isVoteStarted) return;
             _isVoteStarted = true;
             _maxVoteCount = GetActivePlayer() - 1;
-            if (_maxVoteCount <= 1) return;
+            if (_maxVoteCount <= 1)
+            {
+                _isVoteStarted = false;
+                OnVoteSucceed?.Invoke();
+                healthSystem.Dead();
+                return;
+            }
             OnVoteStart?.Invoke(GetActivePlayer() - 1);
             StartCoroutine(VoteUpdateProgress());
         }
@@ -59,6 +66,7 @@ namespace Core.VoteSystems
             float currentVoteRate = (float)_currentVoteCount / _maxVoteCount;
             if (currentVoteRate < approvalRate) return;
             OnVoteSucceed?.Invoke();
+            healthSystem.Dead();
         }
         
         [ClientRpc]
@@ -67,6 +75,7 @@ namespace Core.VoteSystems
             _voterIDList.Clear();
             OnVoteReset?.Invoke();
             _isVoteStarted = false;
+            healthSystem.Revive(hpOnRevive);
         }
 
         private int GetActivePlayer()

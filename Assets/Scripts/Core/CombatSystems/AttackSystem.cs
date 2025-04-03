@@ -44,13 +44,31 @@ namespace Core.CombatSystems
             if (!IsOwner) return;
             inputReader.PrimaryAttackEvent += AttackHandler;
         }
+
+        public override void OnNetworkDespawn()
+        {
+            if (!IsOwner) return;
+            inputReader.PrimaryAttackEvent -= AttackHandler;
+        }
         
+        public void OnEnable()
+        {
+            if (!IsOwner) return;
+            inputReader.PrimaryAttackEvent += AttackHandler;
+        }
+
+        public void OnDisable()
+        {
+            if (!IsOwner) return;
+            inputReader.PrimaryAttackEvent -= AttackHandler;
+        }
+
         private void AttackHandler(bool isAttackingInput)
         {
             if (!IsOwner) return;
             if (!isAttackingInput) return;
             //if (isAttacking.Value) return;
-
+            onStartAttack?.Invoke();
             PlayAttackAnimationServerRpc();
             AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage, NetworkObjectId);
         }

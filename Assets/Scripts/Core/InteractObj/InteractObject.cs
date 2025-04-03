@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace Core.InteractObj
 {
+    public enum InteractObjectType
+    {
+        Door,
+        Lever
+    }
+
     public class InteractObject : NetworkBehaviour
     {
         #region Properties
@@ -13,6 +19,10 @@ namespace Core.InteractObj
         // player interact states of this obj
         // true = try to Activate, false = try to Inactivate
         public NetworkVariable<bool> isInteracting = new NetworkVariable<bool>(false);
+
+        public NetworkVariable<InteractObjectType> interactType;
+
+        public EnemyRoom enemyRoom; // Reference to the EnemyRoom script
 
         #endregion
 
@@ -37,26 +47,38 @@ namespace Core.InteractObj
         // Add or change in this method of what you want it to happen
         private void ActivateObject()
         {
-            if (isInteracting.Value)
+            if(interactType.Value == InteractObjectType.Door && !enemyRoom.roomActive.Value)
             {
-                // if player try to Activate use this
-                SetTest(1f);
-                Debug.Log("Activate: " + gameObject.name);
+                if (!isInteracting.Value)
+                {
+                    // if player try to Activate use this
+                    SetTest(1f, true);
+                    Debug.Log("Activate: " + gameObject.name);
+                }
+                else
+                {
+                    // if player try to Inactivate use this
+                    SetTest(0.1f, false);
+                    Debug.Log("Inactivate: " + gameObject.name);
+                }
             }
-            else
+            else if(interactType.Value == InteractObjectType.Lever)
             {
-                // if player try to Inactivate use this
-                SetTest(0.1f);
-                Debug.Log("Inactivate: " + gameObject.name);
+                if (gameObject.GetComponent<LeverInteract>() == null) return;
+
+                Debug.Log("Activate: " + gameObject.name);
+                gameObject.GetComponent<LeverInteract>().ActivateLever();
+                SetTest(1f, true);
             }
         }
 
         // Test method for what happened after player interact with this obj
-        private void SetTest(float setColor)
+        public void SetTest(float setColor, bool isEnabled)
         {
             TryGetComponent(out SpriteRenderer baseSprite);
             TryGetComponent(out Collider2D colli2D);
-            colli2D.isTrigger = !colli2D.isTrigger;
+            //colli2D.isTrigger = !colli2D.isTrigger;
+            colli2D.isTrigger = !isEnabled;
             Color color = baseSprite.color;
             color.a = setColor;
             baseSprite.color = color;

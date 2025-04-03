@@ -50,7 +50,6 @@ public class EnemyAttack : NetworkBehaviour
     private void AttackHandler()
     {
         lastAttackTime = Time.time;
-        /*PlayAttackAnimationServerRpc();*/
         AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage);
     }
 
@@ -58,9 +57,21 @@ public class EnemyAttack : NetworkBehaviour
     private void AttackHandlerServerRpc(Vector2 damageCenter, Vector2 damageSize, float damage)
     {
         var targets = Physics2D.OverlapBoxAll(damageCenter, damageSize, 0, targetLayer);
+
+        if(targets.Length <= 0)
+        {
+            ResetAttackServerRpc();
+        }
+        else
+        {
+            PlayAttackAnimationServerRpc();
+        }
+
         foreach (var target in targets)
             if (target.TryGetComponent(out HealthSystem targetHealth))
+            {
                 targetHealth.TakeDamage(damage);
+            }
     }
 
     [ServerRpc]
@@ -76,7 +87,7 @@ public class EnemyAttack : NetworkBehaviour
         animator.SetInteger("attackIndex", attackIndex);
         animator.SetTrigger("attack");
         animator.SetBool("isAttacking", true);
-        Invoke(nameof(ResetAttackServerRpc), 0.375f);
+        //Invoke(nameof(ResetAttackServerRpc), 0.49f);
     }
 
     [ServerRpc]

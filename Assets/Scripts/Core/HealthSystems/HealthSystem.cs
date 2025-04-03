@@ -121,6 +121,8 @@ namespace Core.HealthSystems
             DOVirtual.DelayedCall(0.5f, () =>
             {
                 gameObject.SetActive(false);
+                if (!IsOwner) return;
+                CameraManager.Instance.StartSpectatorMode();
             });
         }
     }

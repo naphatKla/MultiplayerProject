@@ -104,7 +104,13 @@ namespace Core.HealthSystems
         
         [ClientRpc]
         private void DownOnClientRpc()
-        {    
+        {
+            if(LayerMask.LayerToName(gameObject.layer) == "Enemy")
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             foreach (var behaviour in disableOnDown)
                 behaviour.enabled = false;
             

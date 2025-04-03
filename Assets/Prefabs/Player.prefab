@@ -519,9 +519,11 @@ GameObject:
   - component: {fileID: -2957016229111639833}
   - component: {fileID: 340595414087066121}
   - component: {fileID: -6732853324292323271}
+  - component: {fileID: -3018208492307091748}
+  - component: {fileID: -1114283782368319781}
   m_Layer: 3
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -837,6 +839,37 @@ MonoBehaviour:
   voteCountdownUIParent: {fileID: 7777922690412462259}
   voteUIPrefab: {fileID: 3979383132382834378, guid: f05e07e4df6f5e4408365a6b4ce344e2, type: 3}
   voteCountdownUIPrefab: {fileID: 3976879113723754464, guid: cb42254f171dccc4dab2d30dbdbc010a, type: 3}
+--- !u!114 &-3018208492307091748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053161922813697055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f05544b99a8fc5848814ec4d98129ee2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  currentRole: 0
+  roleManager: {fileID: 0}
+--- !u!114 &-1114283782368319781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053161922813697055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3926f06e8acdc54597616b97cac7e1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  currentRole: 0
+  roleManager: {fileID: 0}
+  explorerClass: 0
 --- !u!1 &5603898997994056298
 GameObject:
   m_ObjectHideFlags: 0

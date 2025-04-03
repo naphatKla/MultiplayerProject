@@ -23,12 +23,16 @@ public class CameraManager : Singleton<CameraManager>
     private void SpectatorCameraHandler()
     {
         if (!UnityEngine.Input.GetMouseButtonDown(0)) return;
+        ChangeCameraToNextAlivePlayer();
+    }
+
+    private void ChangeCameraToNextAlivePlayer()
+    {
         List<NetworkObject> playerAlive = GetActivePlayers();
         if (playerAlive.Count <= 0) return;
         _cameraIndex++;
         if (_cameraIndex >= playerAlive.Count) _cameraIndex = 0;
         _cameraIndex = Mathf.Clamp(_cameraIndex, 0, playerAlive.Count - 1);
-        Debug.Log(_cameraIndex);
         SetCameraFollowTarget(playerAlive[_cameraIndex].transform);
     }
 

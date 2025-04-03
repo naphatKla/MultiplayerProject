@@ -22,7 +22,9 @@ namespace Core.CombatSystems
 
         [Header("Components")]
         [SerializeField] private Animator animator;
-
+        
+        private bool isBeingDestroyed = false;
+    
         private Vector2 AttackCenterPosition
         {
             get
@@ -65,7 +67,8 @@ namespace Core.CombatSystems
 
         private void AttackHandler(bool isAttackingInput)
         {
-            if (!IsOwner) return;
+            if (this == null || !gameObject.activeSelf) return;
+            if (!IsOwner || isBeingDestroyed) return;
             if (!isAttackingInput) return;
             //if (isAttacking.Value) return;
             onStartAttack?.Invoke();
@@ -76,6 +79,7 @@ namespace Core.CombatSystems
         [ServerRpc]
         private void PlayAttackAnimationServerRpc()
         {
+            if (isBeingDestroyed || !gameObject.activeSelf) return;
             PlayAttackAnimationClientRpc();
         }
 
@@ -126,6 +130,11 @@ namespace Core.CombatSystems
                 targetHealth.TakeDamage(damage, attackerID);
                 Debug.Log($"Hit {target.name} : {damage} damage");
             }
+        }
+        
+        public void MarkAsBeingDestroyed()
+        {
+            isBeingDestroyed = true;
         }
 
         private void OnDrawGizmos()

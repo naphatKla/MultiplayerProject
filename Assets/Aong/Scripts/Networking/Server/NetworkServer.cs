@@ -11,6 +11,8 @@ public class NetworkServer : IDisposable
     private Dictionary<ulong, string> clientIdToAuth = new Dictionary<ulong, string>();
     private Dictionary<string, UserData> authIdToUserData = new Dictionary<string, UserData>();
     private List<ulong> connectedClients = new List<ulong>();
+
+    public Action<string> OnClientLeft;
     public NetworkServer(NetworkManager networkManager)
     {
         this.networkManager = networkManager;
@@ -31,6 +33,7 @@ public class NetworkServer : IDisposable
             clientIdToAuth.Remove(clientId);
             authIdToUserData.Remove(authId);
             connectedClients.Remove(clientId);
+            OnClientLeft?.Invoke(authId);
             Debug.Log($"[NetworkServer] Client {clientId} disconnected.");
 
             if (HostSingleton.Instance?.GameManager != null)

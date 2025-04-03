@@ -1,4 +1,5 @@
 using System;
+using Core.CombatSystems;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static Controls;
@@ -12,7 +13,8 @@ namespace Input
         public event Action<bool> PrimaryAttackEvent;
         public event Action<Vector2> MouseMoveEvent;
         private Controls controls;
-    
+
+        [SerializeField] private AttackSystem attackSystem;
         private void OnEnable()
         {
             if (controls == null)
@@ -36,19 +38,32 @@ namespace Input
     
         public void OnPrimaryAttack(InputAction.CallbackContext context)
         {
-            if (context.performed)
+            if (attackSystem != null && !IsDestroyed(attackSystem))
             {
-                PrimaryAttackEvent?.Invoke(true);
+                if (context.performed)
+                {
+                    PrimaryAttackEvent?.Invoke(true);
+                }
+                else if (context.canceled)
+                {
+                    PrimaryAttackEvent?.Invoke(false);
+                }
             }
-            else if (context.canceled)
+            else
             {
-                PrimaryAttackEvent?.Invoke(false);
+                // ล้าง attackSystem ถ้ามันถูกลบไปแล้ว
+                attackSystem = null;
             }
         }
-
+        
         public void OnAim(InputAction.CallbackContext context)
         {
             MouseMoveEvent?.Invoke(context.ReadValue<Vector2>());
+        }
+        
+        private bool IsDestroyed(UnityEngine.Object obj)
+        {
+            return obj == null;
         }
     }
 }

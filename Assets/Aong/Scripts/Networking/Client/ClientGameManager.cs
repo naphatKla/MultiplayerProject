@@ -68,6 +68,10 @@ public class ClientGameManager : IDisposable
         Debug.Log($"[Client] Started with name: {userData.userName}");
     }
 
+    public void Disconnect()
+    {
+        networkClient.Disconnect();
+    }
     public void Dispose()
     {
         networkClient?.Dispose();

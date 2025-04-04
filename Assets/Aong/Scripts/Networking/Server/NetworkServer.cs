@@ -67,12 +67,15 @@ public class NetworkServer : IDisposable
         return new List<ulong>(connectedClients);
     }
     
-    public string GetUserName(ulong clientId)
+    public UserData GetUserDataByClientId(ulong clientId)
     {
-        if (clientIdToAuth.TryGetValue(clientId, out string authId) && 
-            authIdToUserData.TryGetValue(authId, out UserData userData))
+        if(clientIdToAuth.TryGetValue(clientId,out string authId))
         {
-            return userData.userName;
+            if(authIdToUserData.TryGetValue(authId,out UserData data))
+            {
+                return data;
+            }
+            return null;
         }
         return null;
     }

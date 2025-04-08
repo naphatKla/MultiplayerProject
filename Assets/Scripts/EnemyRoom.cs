@@ -55,6 +55,7 @@ public class EnemyRoom : NetworkBehaviour
         foreach(GameObject door in doors)
         {
             door.GetComponent<InteractObject>().SetTest(1f, true);
+            door.GetComponent<BoxCollider2D>().enabled = true;
         }
     }
 
@@ -104,6 +105,7 @@ public class EnemyRoom : NetworkBehaviour
         foreach (GameObject door in doors)
         {
             door.GetComponent<InteractObject>().SetTest(0.1f, false);
+            door.GetComponent<BoxCollider2D>().enabled = false;
         }
     }
 

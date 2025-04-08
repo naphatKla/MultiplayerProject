@@ -175,7 +175,7 @@ public class HostGameManager : IDisposable
                 networkObject.SpawnAsPlayerObject(clientId);
                 Debug.Log($"Spawned player for client {clientId}");
 
-                playerInstance.transform.position = new Vector3(clientId * 2f, 0f, 0f);
+                playerInstance.transform.position = SpawnPoint.GetRandomSpawnPos();
             }
         }
     }

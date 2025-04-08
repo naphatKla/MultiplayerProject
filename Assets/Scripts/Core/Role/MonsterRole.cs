@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class MonsterRole : PlayerRole
 {
+    private bool isActive = true;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -11,6 +12,7 @@ public class MonsterRole : PlayerRole
     // Update is called once per frame
     void Update()
     {
+        if (!isActive) return;
         if (currentRole != Role.Monster)
         {
             return;
@@ -21,7 +23,8 @@ public class MonsterRole : PlayerRole
     {
         if (role != Role.Monster)
         {
-            Destroy(this);
+            enabled = false;
+            isActive = false;
         }
     }
 }

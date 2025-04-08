@@ -11,6 +11,7 @@ public enum ExplorerClass
 public class ExplorerRole : PlayerRole
 {
     [SerializeField] private ExplorerClass explorerClass;
+    private bool isActive = true;
     public ExplorerClass ExplorerClass { 
         get => explorerClass;
         private set => explorerClass = value; 
@@ -24,6 +25,7 @@ public class ExplorerRole : PlayerRole
     // Update is called once per frame
     void Update()
     {
+        if (!isActive) { return;}
         if (currentRole != Role.Explorer)
         {
             return;
@@ -34,7 +36,8 @@ public class ExplorerRole : PlayerRole
     {
         if (role != Role.Explorer)
         {
-            Destroy(this);
+            enabled = false;
+            isActive = false;
         }
         else
         {

@@ -92,6 +92,7 @@ namespace Core.HealthSystems
         {
             if (!IsOwner) return;
             DeadServerRPC();
+            GameHUD.Instance.deathUI.SetActive(true);
         }
 
         [ServerRpc]
@@ -99,6 +100,20 @@ namespace Core.HealthSystems
         {
             isDead.Value = true;
             DeadOnClientRpc();
+        }
+        
+        public void SetActiveFalse()
+        {
+            if (!IsOwner) return;
+            SetActiveFalseServerRPC();
+            GameHUD.Instance.winUI.SetActive(true);
+        }
+
+        [ServerRpc]
+        private void SetActiveFalseServerRPC()
+        {
+            isDead.Value = true;
+            SetActiveOnClientRpc();
         }
         
         
@@ -124,6 +139,17 @@ namespace Core.HealthSystems
                 animator.SetTrigger("isDead");
             
             OnDie?.Invoke();
+            DOVirtual.DelayedCall(0.5f, () =>
+            {
+                gameObject.SetActive(false);
+                if (!IsOwner) return;
+                CameraManager.Instance.StartSpectatorMode();
+            });
+        }
+        
+        [ClientRpc]
+        private void SetActiveOnClientRpc()
+        {
             DOVirtual.DelayedCall(0.5f, () =>
             {
                 gameObject.SetActive(false);

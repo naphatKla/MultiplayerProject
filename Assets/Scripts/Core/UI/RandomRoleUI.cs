@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -6,6 +7,7 @@ using Random = UnityEngine.Random;
 
 public class RandomRoleUI : MonoBehaviour
 {
+    public GameObject roleCanvas;
     public TextMeshProUGUI slotText; // Assign this in the Inspector
     public float shuffleDuration = 2f; // How long the shuffle lasts
     public float shuffleSpeed = 0.1f; // How fast the text changes
@@ -27,6 +29,11 @@ public class RandomRoleUI : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        roleCanvas = gameObject;
+    }
+
     public void StartShuffle(string role)
     {
         finalRole = role;
@@ -46,5 +53,12 @@ public class RandomRoleUI : MonoBehaviour
         isShuffling = false;
         CancelInvoke(nameof(ShuffleText));
         slotText.text = finalRole;
+        StartCoroutine(DisableUI());
+    }
+
+    private IEnumerator DisableUI()
+    {
+        yield return new WaitForSeconds(2f);
+        roleCanvas.SetActive(false);
     }
 }

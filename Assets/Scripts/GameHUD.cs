@@ -2,8 +2,10 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class GameHUD : MonoBehaviour
+public class GameHUD : Singleton<GameHUD>
 {
+    public GameObject deathUI;
+    public GameObject winUI;
     private void Update()
     {
         if (UnityEngine.Input.GetKeyDown(KeyCode.Escape))

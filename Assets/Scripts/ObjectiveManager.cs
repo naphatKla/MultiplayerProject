@@ -88,13 +88,13 @@ public class ObjectiveManager : NetworkBehaviour
 
     private void UpdateMaxObjective()
     {
+        if (NetworkManager.Singleton == null) { return; }
+        if (NetworkManager.Singleton.ConnectedClients == null) { return; }
         var playerCount = NetworkManager.Singleton.ConnectedClients.Count;
+        if (playerCount < 1) return;
 
-        //Start 4
         var baseMax = 4f;
-        //Calculate additional players
         float additionalPlayers = Mathf.Max(0, playerCount - 4);
-        //Start 4 and plus with additional players
         var newMax = baseMax + Mathf.Floor(additionalPlayers / 2f);
         maxObjective.Value = newMax;
 
@@ -104,7 +104,6 @@ public class ObjectiveManager : NetworkBehaviour
     private void ActivateObjectiveObjects()
     {
         if (!IsServer) return;
-        Debug.Log("Activate");
         foreach (var networkId in objectiveCompleteObjects)
         {
             if (NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(networkId, out var networkObject))
@@ -136,6 +135,7 @@ public class ObjectiveManager : NetworkBehaviour
     {
         if (objectiveText != null) objectiveText.text = $"Objective: {objective.Value}/{maxObjective.Value}";
     }
+    
 
     private void OnDestroy()
     {

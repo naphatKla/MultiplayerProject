@@ -9,6 +9,8 @@ public class EnemyRoom : NetworkBehaviour
     public GameObject[] enemyPrefabs;
     public GameObject[] doors;
     public GameObject interactionObject;
+    
+    public ObjectiveManager objectiveManager;
 
     public List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
     public NetworkVariable<bool> roomActive = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -93,6 +95,7 @@ public class EnemyRoom : NetworkBehaviour
     {
         roomActive.Value = false;
         UnlockRoomClientRpc();
+        objectiveManager.ObjectiveAdd();
     }
 
     [ClientRpc]

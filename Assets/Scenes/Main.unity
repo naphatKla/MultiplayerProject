@@ -8815,6 +8815,7 @@ GameObject:
   - component: {fileID: 411555749}
   - component: {fileID: 411555748}
   - component: {fileID: 411555750}
+  - component: {fileID: 411555752}
   - component: {fileID: 411555751}
   m_Layer: 0
   m_Name: GameManager
@@ -8896,6 +8897,18 @@ MonoBehaviour:
   objectsToActivateOnComplete:
   - {fileID: 542533332}
   objectiveText: {fileID: 1561149444}
+--- !u!114 &411555752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 411555747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 634f60f2a4089084ca5be904e53b2e81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &433394602
 GameObject:
   m_ObjectHideFlags: 0
@@ -8978,7 +8991,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 433394605}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 501373972}
+        m_TargetAssemblyTypeName: CameraManager, Assembly-CSharp
+        m_MethodName: ChangeCameraToNextAlivePlayer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &433394605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9465,6 +9490,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1183574484}
     m_Modifications:
+    - target: {fileID: 4712157357012941224, guid: c6985e6a1aecdb14489af3ecf83fd50b, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5965231669071404335, guid: c6985e6a1aecdb14489af3ecf83fd50b, type: 3}
       propertyPath: m_Name
       value: RoleUI(Canvas)
@@ -15896,7 +15925,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 853068104}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 411555752}
+        m_TargetAssemblyTypeName: GameHUD, Assembly-CSharp
+        m_MethodName: LeaveGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &853068104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30217,7 +30258,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &981524641
 RectTransform:
   m_ObjectHideFlags: 0
@@ -30587,12 +30628,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -30619,7 +30660,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_TargetDisplay: 0
 --- !u!224 &1183574484
 RectTransform:
@@ -30703,7 +30744,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1192869376
 RectTransform:
   m_ObjectHideFlags: 0
@@ -31702,7 +31743,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1551489776}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 411555752}
+        m_TargetAssemblyTypeName: GameHUD, Assembly-CSharp
+        m_MethodName: LeaveGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1551489776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31792,7 +31845,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -55861,7 +55914,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -56363,7 +56416,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1979047499}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 501373972}
+        m_TargetAssemblyTypeName: CameraManager, Assembly-CSharp
+        m_MethodName: ChangeCameraToNextAlivePlayer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1979047499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56453,7 +56518,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -56589,7 +56654,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -56852,10 +56917,10 @@ SceneRoots:
   - {fileID: 516818426}
   - {fileID: 501373970}
   - {fileID: 1428351271}
+  - {fileID: 1183574484}
   - {fileID: 1669863473}
-  - {fileID: 411555749}
   - {fileID: 1328327199}
-  - {fileID: 864726713}
+  - {fileID: 411555749}
   - {fileID: 1078212919}
   - {fileID: 619394802}
   - {fileID: 1206167162}
@@ -56863,4 +56928,4 @@ SceneRoots:
   - {fileID: 275708574}
   - {fileID: 145755287}
   - {fileID: 336822722}
-  - {fileID: 1183574484}
+  - {fileID: 864726713}

@@ -26,7 +26,7 @@ public class CameraManager : Singleton<CameraManager>
         ChangeCameraToNextAlivePlayer();
     }
 
-    private void ChangeCameraToNextAlivePlayer()
+    public void ChangeCameraToNextAlivePlayer()
     {
         List<NetworkObject> playerAlive = GetActivePlayers();
         if (playerAlive.Count <= 0) return;

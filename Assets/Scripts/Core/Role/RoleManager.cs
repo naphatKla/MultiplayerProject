@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -12,7 +10,7 @@ public enum Role
     Monster
 }
 
-public class RoleManager : NetworkBehaviour
+public class RoleManager : NetworkSingleton<RoleManager>
 {
     private Dictionary<ulong, Role> playerRoles;
     public Dictionary<ulong, Role> PlayerRoles {
@@ -21,7 +19,7 @@ public class RoleManager : NetworkBehaviour
     }
 
     [SerializeField] private bool readyToSet = false;
-    public bool ReadToSet {
+    public bool ReadyToSet {
         get => readyToSet;
         private set => readyToSet = value;
     }
@@ -29,7 +27,9 @@ public class RoleManager : NetworkBehaviour
     [SerializeField] public RandomRoleUI randomRoleUI;
     
     public override void OnNetworkSpawn()
-    {
+    { 
+        base.OnNetworkSpawn();
+        
         if (IsServer)
         {
             AssignRoles();
@@ -72,24 +72,6 @@ public class RoleManager : NetworkBehaviour
         }
 
         UpdateRoleToClientManagerRpc(ids, roles);
-        AssignManagerClientRpc();
-    }
-    
-    private void Start()
-    {
-        AssignManagerClientRpc();
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    void AssignManagerClientRpc()
-    {
-        GameObject[] playObj = GameObject.FindGameObjectsWithTag("Player");
-        foreach (var obj in playObj)
-        {
-            obj.GetComponent<ExplorerRole>().roleManager = this;
-            obj.GetComponent<MonsterRole>().roleManager = this;
-            ulong playerId = obj.GetComponent<NetworkBehaviour>().OwnerClientId;
-        }
     }
 
     [Rpc(SendTo.ClientsAndHost)]

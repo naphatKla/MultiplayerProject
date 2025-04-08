@@ -117,11 +117,12 @@ public class HostGameManager : IDisposable
     {
         if (networkServer != null)
         {
-            var name = networkServer.GetUserName(clientId);
-            if (!string.IsNullOrEmpty(name))
+            UserData name = networkServer.GetUserDataByClientId(clientId);
+            var display = name.ToString();
+            if (!string.IsNullOrEmpty(display))
             {
-                playerNames[clientId] = name;
-                return name;
+                playerNames[clientId] = display;
+                return display;
             }
         }
 

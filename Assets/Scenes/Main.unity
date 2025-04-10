@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: 31834760}
   - component: {fileID: 31834761}
   - component: {fileID: 31834762}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Exit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -389,7 +389,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1.4375}
+  m_Size: {x: 1, y: 1.25}
   m_EdgeRadius: 0
 --- !u!114 &31834761
 MonoBehaviour:
@@ -9928,7 +9928,7 @@ GameObject:
   - component: {fileID: 695510582}
   - component: {fileID: 695510581}
   - component: {fileID: 695510580}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Exit (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10036,7 +10036,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1.4375}
+  m_Size: {x: 1, y: 1.25}
   m_EdgeRadius: 0
 --- !u!212 &695510583
 SpriteRenderer:
@@ -16323,7 +16323,7 @@ GameObject:
   - component: {fileID: 920848466}
   - component: {fileID: 920848465}
   - component: {fileID: 920848464}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Exit (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16431,7 +16431,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1.4375}
+  m_Size: {x: 1, y: 1.25}
   m_EdgeRadius: 0
 --- !u!212 &920848467
 SpriteRenderer:
@@ -57921,7 +57921,7 @@ GameObject:
   - component: {fileID: 1979756892}
   - component: {fileID: 1979756891}
   - component: {fileID: 1979756890}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Exit (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58029,7 +58029,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1.4375}
+  m_Size: {x: 1, y: 1.25}
   m_EdgeRadius: 0
 --- !u!212 &1979756893
 SpriteRenderer:

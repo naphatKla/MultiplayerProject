@@ -1,17 +1,27 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public enum Role
 {
-    Null,
+    NullRole,
     Explorer,
     Monster
+}
+public enum ExplorerClass
+{
+    NullClass,
+    Paladin,
+    Wizard,
+    Healer
 }
 
 public class RoleManager : NetworkSingleton<RoleManager>
 {
+    private Dictionary<ulong, ExplorerClass> playerExplorerClasses;
+    
     private Dictionary<ulong, Role> playerRoles;
     public Dictionary<ulong, Role> PlayerRoles {
         get => playerRoles;
@@ -72,6 +82,123 @@ public class RoleManager : NetworkSingleton<RoleManager>
         }
 
         UpdateRoleToClientManagerRpc(ids, roles);
+        AssignManagerClientRpc();
+        AssignClassForExplorer();
+    }
+
+    public void AssignClassForExplorer()
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        // Filter out players who have the Explorer role
+        List<ulong> explorerIds = new List<ulong>();
+        foreach (var kvp in playerRoles)
+        {
+            if (kvp.Value == Role.Explorer)
+            {
+                explorerIds.Add(kvp.Key);
+            }
+        }
+
+        Dictionary<ulong, ExplorerClass> assignedClasses = new Dictionary<ulong, ExplorerClass>();
+        
+        // Classes to assign (excluding the 'Null' class)
+        List<ExplorerClass> availableClasses = new List<ExplorerClass> {
+            ExplorerClass.Paladin, 
+            ExplorerClass.Wizard, 
+            ExplorerClass.Healer
+        };
+
+        // Shuffle the available classes to randomize the assignment
+        ShuffleList(availableClasses);
+
+        // Assign each explorer a random class without duplication
+        int classIndex = 0;
+        foreach (ulong explorerId in explorerIds)
+        {
+            if (classIndex >= availableClasses.Count) break; // Stop if all classes are assigned
+
+            // Assign the class to the explorer
+            ExplorerClass assignedClass = availableClasses[classIndex];
+            assignedClasses[explorerId] = assignedClass;
+        
+            // Debug log to track assignment
+            Debug.Log($"Explorer {explorerId} assigned class: {assignedClass}");
+
+            classIndex++;
+        }
+
+        ulong[] ids = assignedClasses.Keys.ToArray();
+        ExplorerClass[] classes = assignedClasses.Values.ToArray();
+
+        // Update class assignment on clients
+        UpdateManagerExplorerClassRpc(ids, classes);
+        
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void UpdateManagerExplorerClassRpc(ulong[] ids, ExplorerClass[] classes)
+    {
+        // Create a dictionary from the arrays
+        Dictionary<ulong, ExplorerClass> serverClass = new Dictionary<ulong, ExplorerClass>();
+        for (int i = 0; i < ids.Length; i++)
+        {
+            serverClass[ids[i]] = classes[i];
+        }
+
+        // Update the playerExplorerClasses dictionary
+        playerExplorerClasses = serverClass;
+    }
+    
+    public ExplorerClass AssignClassForExplorer(ulong id)
+    {
+        if (playerExplorerClasses.ContainsKey(id))
+        {
+            // Return the class associated with the player ID
+            return playerExplorerClasses[id];
+        }
+        else
+        {
+            // If the ID is not found, return 'ExplorerClass.Null' or handle appropriately
+            Debug.LogWarning($"Explorer class not found for player ID: {id}");
+            return ExplorerClass.NullClass;
+        }
+    }
+    
+    public List<ulong> GetExplorerPlayerIds()
+    {
+        List<ulong> explorerPlayerIds = new List<ulong>();
+    
+        foreach (var kvp in playerRoles)
+        {
+            if (kvp.Value == Role.Explorer) // Check if the role is Explorer
+            {
+                explorerPlayerIds.Add(kvp.Key); // Add the player ID to the list
+            }
+        }
+
+        return explorerPlayerIds;
+    }
+    
+    
+    private void Start()
+    {
+        AssignManagerClientRpc();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void AssignManagerClientRpc()
+    {
+        GameObject[] playObj = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var obj in playObj)
+        {
+            obj.GetComponent<ExplorerRole>().RoleManager = this;
+            obj.GetComponent<MonsterRole>().RoleManager = this;
+            ulong playerId = obj.GetComponent<NetworkBehaviour>().OwnerClientId;
+        }
     }
 
     [Rpc(SendTo.ClientsAndHost)]

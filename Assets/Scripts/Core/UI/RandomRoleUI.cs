@@ -7,8 +7,10 @@ using Random = UnityEngine.Random;
 
 public class RandomRoleUI : MonoBehaviour
 {
-    public GameObject roleCanvas;
     public TextMeshProUGUI slotText; // Assign this in the Inspector
+    public GameObject title;
+    public GameObject slot; // Assign this in the Inspector
+    public GameObject indicateText;
     public float shuffleDuration = 2f; // How long the shuffle lasts
     public float shuffleSpeed = 0.1f; // How fast the text changes
     [SerializeField] private string[] possibleResults; // Possible outcomes
@@ -31,7 +33,8 @@ public class RandomRoleUI : MonoBehaviour
 
     private void Start()
     {
-        roleCanvas = gameObject;
+        indicateText.SetActive(false);
+        slotText = slot.GetComponent<TextMeshProUGUI>();
     }
 
     public void StartShuffle(string role)
@@ -59,6 +62,20 @@ public class RandomRoleUI : MonoBehaviour
     private IEnumerator DisableUI()
     {
         yield return new WaitForSeconds(2f);
-        roleCanvas.SetActive(false);
+        StartCoroutine(WaitToClose());
+    }
+
+    IEnumerator WaitToClose()
+    {
+        yield return new WaitForSeconds(2f);
+        title.SetActive(false);
+        slot.SetActive(false);
+        IndicateRole();
+    }
+
+    private void IndicateRole()
+    {
+        indicateText.SetActive(true);
+        indicateText.GetComponent<TextMeshProUGUI>().text = slotText.text;
     }
 }

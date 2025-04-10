@@ -14,6 +14,8 @@ namespace Core.MovementSystems
         private Vector2 movementInput;
         private NetworkVariable<bool> isMoving = new NetworkVariable<bool>();
         private NetworkVariable<bool> isRunning = new NetworkVariable<bool>();
+        [SerializeField] private FieldOfView fieldOfView;
+        [SerializeField] private Transform origin;
 
         [Header("Components")]
         [SerializeField] private Animator animator;
@@ -37,6 +39,12 @@ namespace Core.MovementSystems
             if (!IsOwner) return;
             MovementHandler();
         }
+
+        public void SetFOV(FieldOfView fov)
+        {
+            if (!IsOwner) return;
+            fieldOfView = fov;
+        }
         
         private void SetMoveInput(Vector2 movement)
         {
@@ -57,6 +65,18 @@ namespace Core.MovementSystems
             Vector2 newPos = rb.position + movementInput * (curPlayerMoveSpeed * Time.fixedDeltaTime);
             rb.MovePosition(newPos);
             PlayMovingAnimationServerRpc();
+            
+            fieldOfView.SetOrigin(origin.position);
+            Vector3 targetPoisition = GetMouseInWorldPosition();
+            Vector3 aimDir = (targetPoisition - transform.position).normalized;
+            fieldOfView.SetAimDirection(aimDir);
+        }
+        
+        public Vector3 GetMouseInWorldPosition()
+        {
+            Vector3 worldPosition = Camera.main.ScreenToWorldPoint(inputReader.MousePos);
+            worldPosition.z = 0f;
+            return worldPosition;
         }
 
         [ServerRpc]

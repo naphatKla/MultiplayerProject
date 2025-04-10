@@ -1,13 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public enum ExplorerClass
-{
-    Null,
-    Paladin,
-    Wizard,
-    Healer
-}
+
 public class ExplorerRole : PlayerRole
 {
     [SerializeField] private ExplorerClass explorerClass;
@@ -43,23 +37,16 @@ public class ExplorerRole : PlayerRole
         {
             if (IsOwner)
             {
-                AssignRandomExplorerClass();
+                UpdateClassToClientRpc(roleManager.AssignClassForExplorer(OwnerClientId));
             }
-           
         }
     }
     
-    private void AssignRandomExplorerClass()
-    {
-        ExplorerClass = (ExplorerClass)Random.Range(1, System.Enum.GetValues(typeof(ExplorerClass)).Length);
-        Debug.Log($"Explorer assigned class: {ExplorerClass}");
-        UpdateClassToClientRpc(ExplorerClass);
-    }
     
     [Rpc(SendTo.ClientsAndHost)]
     void UpdateClassToClientRpc(ExplorerClass playerclass)
     {
-        if (explorerClass == ExplorerClass.Null)
+        if (explorerClass == ExplorerClass.NullClass)
         {
             explorerClass = playerclass;
         }

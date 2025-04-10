@@ -13,6 +13,7 @@ namespace Input
         public event Action<bool> PrimaryAttackEvent;
         public event Action<Vector2> MouseMoveEvent;
         private Controls controls;
+        public Vector2 MousePos { get; private set; }
 
         [SerializeField] private AttackSystem attackSystem;
         private void OnEnable()
@@ -59,6 +60,7 @@ namespace Input
         public void OnAim(InputAction.CallbackContext context)
         {
             MouseMoveEvent?.Invoke(context.ReadValue<Vector2>());
+            MousePos = context.ReadValue<Vector2>();
         }
         
         private bool IsDestroyed(UnityEngine.Object obj)

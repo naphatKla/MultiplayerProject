@@ -6,8 +6,11 @@ using Random = System.Random;
 
 public abstract class PlayerRole : NetworkBehaviour
 {
-    [SerializeField] protected Role currentRole = Role.Null;
+    [field: SerializeField] protected RoleManager roleManager;
+    public RoleManager RoleManager { get => roleManager ;
+        set => roleManager = value; }
 
+    [SerializeField] protected Role currentRole = Role.NullRole;
     private Role CurrentRole { get => currentRole ;
         set => currentRole = value; }
     protected abstract void UpdateRole(Role role);
@@ -20,8 +23,8 @@ public abstract class PlayerRole : NetworkBehaviour
     private IEnumerator WaitForRoleManager()
     {
         // Wait until roleManager is assigned
-        yield return new WaitUntil(() => RoleManager.Instance != null);
-        yield return new WaitUntil(() => RoleManager.Instance.ReadyToSet);
+        yield return new WaitUntil(() => roleManager != null);
+        yield return new WaitUntil(() => roleManager.ReadyToSet);
 
         // Now it's safe to call SetRole
         if (!IsOwner) yield break;
@@ -33,12 +36,12 @@ public abstract class PlayerRole : NetworkBehaviour
     private void SetRoleToClientRpc(ulong myId)
     {
         Debug.Log($"Role Setting Complete");
-        if (currentRole != Role.Null)
+        if (currentRole != Role.NullRole)
         {
             return;
         }
 
-        CurrentRole = RoleManager.Instance.PlayerRoles[myId];
+        CurrentRole = roleManager.PlayerRoles[myId];
         UpdateRole(CurrentRole);
         ShuffleRoleOutput();
     }
@@ -47,7 +50,7 @@ public abstract class PlayerRole : NetworkBehaviour
     {
         if (!IsOwner) return;
         
-        if (currentRole == Role.Null) return;
+        if (currentRole == Role.NullRole) return;
         switch (currentRole)
         {
             case Role.Monster:
@@ -56,7 +59,7 @@ public abstract class PlayerRole : NetworkBehaviour
             case Role.Explorer:
                 RandomRoleUI.instance.StartShuffle(GetComponent<ExplorerRole>().ExplorerClass.ToString());
                 break;
-            case Role.Null:
+            case Role.NullRole:
                 Debug.LogError("No rule assigned!");
                 break;
         }

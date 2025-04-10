@@ -1,8 +1,10 @@
 using System;
+using Core.MovementSystems;
 using Input;
+using Unity.Netcode;
 using UnityEngine;
 
-public class FieldOfView : MonoBehaviour
+public class FieldOfView : NetworkBehaviour
 {
     [SerializeField] private float fov;
     [SerializeField] private int rayCount;
@@ -18,17 +20,41 @@ public class FieldOfView : MonoBehaviour
     private int triangleIndex;
     private float startingAngle;
     
-    private void Start()
+    
+    public override void OnNetworkSpawn()
     {
-        mesh = new Mesh();
-        GetComponent<MeshFilter>().mesh = mesh;
-        origin = Vector3.zero;
+        if (IsOwner)
+        {
+            Debug.Log("Field of View mesh initialized on owner client.");
+            mesh = new Mesh();
+            GetComponent<MeshFilter>().mesh = mesh;
+            origin = Vector3.zero;
+            transform.SetParent(null);
+            transform.position = Vector3.zero;
+        }
+    }
+
+    /*private void Start()
+    {
+        AssignFovClient();
+    }*/
+    
+    void AssignFovClient()
+    {
+        GameObject[] playObj = GameObject.FindGameObjectsWithTag("Player");
+        foreach (var obj in playObj)
+        {
+            obj.GetComponent<PlayerMovement>().SetFOV(this);
+        }
     }
     
     private void LateUpdate()
     {
+        if (!IsOwner) return;
         CastFieldOfView();
+        Debug.Log("LateUpdate running on owner client.");
     }
+    
 
     private void CastFieldOfView()
     {

@@ -52,7 +52,6 @@ public class FieldOfView : NetworkBehaviour
     {
         if (!IsOwner) return;
         CastFieldOfView();
-        Debug.Log("LateUpdate running on owner client.");
     }
     
 

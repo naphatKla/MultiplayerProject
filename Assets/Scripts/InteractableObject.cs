@@ -9,9 +9,17 @@ public class InteractableObject : NetworkBehaviour
     [SerializeField] private KeyCode buttonToInteract = KeyCode.E;
     
 
+    private void Awake()
+    {
+        canInteract.OnValueChanged += (oldValue, newValue) =>
+        {
+            Debug.Log($"Client {NetworkManager.Singleton.LocalClientId} canInteract changed from {oldValue} to {newValue} on {gameObject.name}");
+        };
+    }
+    
     void Update()
     {
-        if (!IsOwner || !IsClient) return;
+        if (!IsClient) return;
         if (!canInteract.Value) return;
 
         CheckInteraction();
@@ -19,24 +27,33 @@ public class InteractableObject : NetworkBehaviour
 
     private void CheckInteraction()
     {
-        if (NetworkManager.Singleton == null || NetworkManager.Singleton.LocalClient == null) { return; }
-        
+        if (NetworkManager.Singleton == null || NetworkManager.Singleton.LocalClient == null)
+        {
+            return;
+        }
+
         NetworkObject playerObject = NetworkManager.Singleton.LocalClient.PlayerObject;
-        if (playerObject == null) { return; }
+        if (playerObject == null)
+        {
+            return;
+        }
 
         GameObject player = playerObject.gameObject;
         float distance = Vector3.Distance(player.transform.position, transform.position);
 
-        if (distance <= interactDistance && UnityEngine.Input.GetKeyDown(buttonToInteract))
+        if (distance <= interactDistance)
         {
-            InteractServerRpc();
+            if (UnityEngine.Input.GetKeyDown(buttonToInteract))
+            {
+                InteractServerRpc();
+            }
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void InteractServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        if (!canInteract.Value) return;
+        if (!canInteract.Value) { return; }
         PerformInteraction(serverRpcParams.Receive.SenderClientId);
         InteractClientRpc();
     }
@@ -49,14 +66,12 @@ public class InteractableObject : NetworkBehaviour
 
     private void PerformInteraction(ulong clientId)
     {
-        Debug.Log("Object Interacted by: " + clientId);
-        
         if (NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
         {
             GameObject player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
             SetPlayerActiveServerRpc(clientId, false);
         }
-        
+    
         canInteract.Value = false;
     }
 
@@ -77,10 +92,14 @@ public class InteractableObject : NetworkBehaviour
         if (NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
         {
             GameObject player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
-            player.GetComponent<HealthSystem>().SetActiveFalse();
+            var healthSystem = player.GetComponent<HealthSystem>();
+            if (healthSystem != null)
+            {
+                healthSystem.SetActiveFalse();
+            }
         }
     }
-
+    
     private void PerformInteractionEffects()
     {
         Debug.Log("Interaction effect triggered");

@@ -19,7 +19,7 @@ public class TreasureObject : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsOwner || !IsClient) return;
+        if (!IsClient) return;
         if (!canInteract.Value) return;
 
         CheckInteraction();
@@ -60,7 +60,7 @@ public class TreasureObject : NetworkBehaviour
             ResetInteractServerRpc();
         }
 
-        UpdateProgressUI();
+        UpdateProgressUI(interactProgress.Value);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -78,7 +78,6 @@ public class TreasureObject : NetworkBehaviour
             InteractClientRpc();
             interactProgress.Value = 0f;
             isInteracting = false;
-            Debug.Log("Interaction completed");
         }
     }
 
@@ -92,8 +91,7 @@ public class TreasureObject : NetworkBehaviour
     [ClientRpc]
     private void UpdateProgressClientRpc(float progress)
     {
-        interactProgress.Value = progress;
-        UpdateProgressUI();
+        UpdateProgressUI(progress);
     }
 
     [ClientRpc]
@@ -111,6 +109,9 @@ public class TreasureObject : NetworkBehaviour
         }
 
         canInteract.Value = false;
+        interactProgress.Value = 0f;
+        UpdateProgressClientRpc(0f);
+        Debug.Log("Interaction completed, canInteract set to false");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -135,29 +136,20 @@ public class TreasureObject : NetworkBehaviour
                     var obj = networkObject.gameObject;
                     var interactable = obj.GetComponent<InteractableObject>();
                     interactable.canInteract.Value = true;
-                    SetInteractableClientRpc(networkObject.NetworkObjectId, true);
                 }
     }
-
-    [ClientRpc]
-    private void SetInteractableClientRpc(ulong networkId, bool canInteract)
-    {
-        if (NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(networkId, out var networkObject))
-            if (networkObject != null)
-                networkObject.gameObject.GetComponent<InteractableObject>().canInteract.Value = canInteract;
-    }
-
+    
     private void PerformInteractionEffects()
     {
         Debug.Log("Interaction effect triggered");
     }
 
-    private void UpdateProgressUI()
+    private void UpdateProgressUI(float progress)
     {
         if (progressBar != null)
         {
-            progressBar.value = interactProgress.Value;
-            progressBar.gameObject.SetActive(interactProgress.Value > 0f);
+            progressBar.value = progress;
+            progressBar.gameObject.SetActive(progress > 0f && canInteract.Value);
         }
         else
         {

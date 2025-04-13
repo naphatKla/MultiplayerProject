@@ -3,6 +3,14 @@ using UnityEngine;
 public class MonsterRole : PlayerRole
 {
     private bool isActive = true;
+
+    public bool tranformMimic = false;
+
+    public void TranformMimic()
+    {
+        tranformMimic = true;
+        Debug.Log("Tranform to mimic");
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

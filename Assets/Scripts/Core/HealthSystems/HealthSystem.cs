@@ -99,6 +99,7 @@ namespace Core.HealthSystems
         private void DeadServerRPC()
         {
             isDead.Value = true;
+            RoleManager.Instance.UpdatePlayerActiveStatus(OwnerClientId, false);
             DeadOnClientRpc();
         }
         

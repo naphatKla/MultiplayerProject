@@ -7,7 +7,9 @@ public class InteractableObject : NetworkBehaviour
     [SerializeField] public NetworkVariable<bool> canInteract = new NetworkVariable<bool>(true);
     [SerializeField] private float interactDistance = 2f;
     [SerializeField] private KeyCode buttonToInteract = KeyCode.E;
-    
+ 
+    [SerializeField] private NetworkVariable<int> playersEscapedCount = new NetworkVariable<int>(0);
+    [SerializeField] private int maxPlayersPerDoor = 2;
 
     private void Awake()
     {
@@ -15,8 +17,12 @@ public class InteractableObject : NetworkBehaviour
         {
             Debug.Log($"Client {NetworkManager.Singleton.LocalClientId} canInteract changed from {oldValue} to {newValue} on {gameObject.name}");
         };
+        playersEscapedCount.OnValueChanged += (oldValue, newValue) =>
+        {
+            Debug.Log($"Players escaped through {gameObject.name}: {newValue}/{maxPlayersPerDoor}");
+        };
     }
-    
+
     void Update()
     {
         if (!IsClient) return;
@@ -53,9 +59,18 @@ public class InteractableObject : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void InteractServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        if (!canInteract.Value) { return; }
-        PerformInteraction(serverRpcParams.Receive.SenderClientId);
-        InteractClientRpc();
+        if (!canInteract.Value) return;
+        
+        ulong clientId = serverRpcParams.Receive.SenderClientId;
+        if (!NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId)) { return; }
+        
+        if (RoleManager.Instance.PlayerRoles.TryGetValue(clientId, out Role role) && role == Role.Explorer)
+        {
+            if (playersEscapedCount.Value < maxPlayersPerDoor)
+            {
+                PerformInteraction(clientId);
+            }
+        }
     }
 
     [ClientRpc]
@@ -66,22 +81,36 @@ public class InteractableObject : NetworkBehaviour
 
     private void PerformInteraction(ulong clientId)
     {
+        if (!NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId)) { return; }
         if (NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
         {
             GameObject player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
+            if (RoleManager.Instance != null)
+            {
+                RoleManager.Instance.UpdatePlayerActiveStatus(clientId, false);
+            }
+            else
+            {
+                Debug.LogError("RoleManager instance is null!");
+            }
+            playersEscapedCount.Value++;
+            if (playersEscapedCount.Value >= maxPlayersPerDoor)
+            {
+                canInteract.Value = false;
+                Debug.Log($"Door {gameObject.name} is now locked. Max players ({maxPlayersPerDoor}) reached.");
+            }
+
             SetPlayerActiveServerRpc(clientId, false);
         }
-    
-        canInteract.Value = false;
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void SetPlayerActiveServerRpc(ulong clientId, bool active)
     {
+        if (!NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId)) { return; }
         if (NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
         {
             GameObject player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
-            player.SetActive(active);
             SetPlayerActiveClientRpc(clientId, active);
         }
     }
@@ -93,18 +122,27 @@ public class InteractableObject : NetworkBehaviour
         {
             GameObject player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
             var healthSystem = player.GetComponent<HealthSystem>();
-            if (healthSystem != null)
+            if (healthSystem != null && active == false)
             {
                 healthSystem.SetActiveFalse();
             }
         }
     }
-    
+
     private void PerformInteractionEffects()
     {
         Debug.Log("Interaction effect triggered");
     }
     
+    public void ResetDoor()
+    {
+        if (IsServer)
+        {
+            playersEscapedCount.Value = 0;
+            canInteract.Value = true;
+        }
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;

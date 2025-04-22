@@ -20,7 +20,11 @@ public class TreasureObject : NetworkBehaviour
     private void Update()
     {
         if (!IsClient) return;
-        if (!canInteract.Value) return;
+        if (!canInteract.Value)
+        {
+            UpdateProgressUI(0f);
+            return;
+        }
 
         CheckInteraction();
         UpdateProgressBarOrientation();
@@ -142,6 +146,10 @@ public class TreasureObject : NetworkBehaviour
     private void PerformInteractionEffects()
     {
         Debug.Log("Interaction effect triggered");
+        if (progressBar != null)
+        {
+            progressBar.gameObject.SetActive(false);
+        }
     }
 
     private void UpdateProgressUI(float progress)
@@ -149,7 +157,7 @@ public class TreasureObject : NetworkBehaviour
         if (progressBar != null)
         {
             progressBar.value = progress;
-            progressBar.gameObject.SetActive(progress > 0f && canInteract.Value);
+            progressBar.gameObject.SetActive(canInteract.Value && progress > 0f);
         }
         else
         {

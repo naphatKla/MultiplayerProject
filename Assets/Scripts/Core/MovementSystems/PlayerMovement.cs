@@ -90,8 +90,9 @@ namespace Core.MovementSystems
         [ClientRpc]
         private void PlayMovingAnimationClientRpc()
         {
-            if (!isMoving.Value) return;
-            animator.SetBool("isRunning", isRunning.Value); // Adjust 'someThreshold' based on your speeds
+            //if (!isMoving.Value) return;
+            animator.SetBool("isMoving", isMoving.Value); // Adjust 'someThreshold' based on your speeds
+            animator.SetBool("isRunning", isRunning.Value);
         }
 
         [ServerRpc]

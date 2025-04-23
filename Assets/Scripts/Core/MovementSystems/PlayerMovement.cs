@@ -12,7 +12,10 @@ namespace Core.MovementSystems
         [Space] [Header("Dependencies")] [SerializeField] private Rigidbody2D rb;
         [SerializeField] private SpriteRenderer spriteRenderer;
         private Vector2 movementInput;
-        private NetworkVariable<bool> isMoving = new NetworkVariable<bool>();
+        //private NetworkVariable<bool> isMoving = new NetworkVariable<bool>();
+        private NetworkVariable<bool> isMoving = new NetworkVariable<bool>(false,
+                                          NetworkVariableReadPermission.Everyone,
+                                           NetworkVariableWritePermission.Owner);
         private NetworkVariable<bool> isRunning = new NetworkVariable<bool>();
         [SerializeField] private FieldOfView fieldOfView;
         [SerializeField] private Transform origin;
@@ -25,6 +28,9 @@ namespace Core.MovementSystems
             if (!IsOwner) return;
             inputReader.MoveEvent += SetMoveInput;
             inputReader.MouseMoveEvent += PlayerFacingHandler;
+
+            //isMoving.OnValueChanged += OnIsMovingChanged;
+            //isRunning.OnValueChanged += OnIsRunningChanged;
         }
 
         public override void OnNetworkDespawn()
@@ -32,7 +38,20 @@ namespace Core.MovementSystems
             if (!IsOwner) return;
             inputReader.MoveEvent -= SetMoveInput;
             inputReader.MouseMoveEvent -= PlayerFacingHandler;
+
+            //isMoving.OnValueChanged -= OnIsMovingChanged;
+            //isRunning.OnValueChanged -= OnIsRunningChanged;
         }
+
+        /*private void OnIsMovingChanged(bool previousValue, bool newValue)
+        {
+            animator.SetBool("isMoving", newValue);
+        }
+
+        private void OnIsRunningChanged(bool previousValue, bool newValue)
+        {
+            animator.SetBool("isRunning", newValue);
+        }*/
 
         private void FixedUpdate()
         {
@@ -53,6 +72,8 @@ namespace Core.MovementSystems
         
         private void PlayerFacingHandler(Vector2 mousePos)
         {
+            if (!IsOwner) return;
+
             mousePos = Camera.main.ScreenToWorldPoint(mousePos);
             Vector2 lookDirection = mousePos - (Vector2)transform.position;
             float angle = Mathf.Atan2(lookDirection.y, lookDirection.x) * Mathf.Rad2Deg;
@@ -62,9 +83,14 @@ namespace Core.MovementSystems
         
         private void MovementHandler()
         {
+            if (!IsOwner) return;
+
             Vector2 newPos = rb.position + movementInput * (curPlayerMoveSpeed * Time.fixedDeltaTime);
             rb.MovePosition(newPos);
-            PlayMovingAnimationServerRpc();
+
+            isMoving.Value = !(movementInput.magnitude <= 0);
+            isRunning.Value = curPlayerMoveSpeed > 15f;
+            PlayMovingAnimationServerRpc(isMoving.Value, isRunning.Value);
             
             fieldOfView.SetOrigin(origin.position);
             Vector3 targetPoisition = GetMouseInWorldPosition();
@@ -80,19 +106,18 @@ namespace Core.MovementSystems
         }
 
         [ServerRpc]
-        private void PlayMovingAnimationServerRpc()
+        private void PlayMovingAnimationServerRpc(bool isMoving, bool isRunning)
         {
-            isMoving.Value = !(movementInput.magnitude <= 0);
-            isRunning.Value = curPlayerMoveSpeed > 15f;
-            PlayMovingAnimationClientRpc();
+            PlayMovingAnimationClientRpc(isMoving, isRunning);
         }
 
         [ClientRpc]
-        private void PlayMovingAnimationClientRpc()
+        private void PlayMovingAnimationClientRpc(bool isMoving, bool isRunning)
         {
             //if (!isMoving.Value) return;
-            animator.SetBool("isMoving", isMoving.Value); // Adjust 'someThreshold' based on your speeds
-            animator.SetBool("isRunning", isRunning.Value);
+
+            animator.SetBool("isMoving", isMoving); // Adjust 'someThreshold' based on your speeds
+            animator.SetBool("isRunning", isRunning);
         }
 
         [ServerRpc]

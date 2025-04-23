@@ -12,11 +12,12 @@ namespace Core.MovementSystems
         [Space] [Header("Dependencies")] [SerializeField] private Rigidbody2D rb;
         [SerializeField] private SpriteRenderer spriteRenderer;
         private Vector2 movementInput;
-        //private NetworkVariable<bool> isMoving = new NetworkVariable<bool>();
         private NetworkVariable<bool> isMoving = new NetworkVariable<bool>(false,
                                           NetworkVariableReadPermission.Everyone,
-                                           NetworkVariableWritePermission.Owner);
-        private NetworkVariable<bool> isRunning = new NetworkVariable<bool>();
+                                          NetworkVariableWritePermission.Owner);
+        private NetworkVariable<bool> isRunning = new NetworkVariable<bool>(false,
+                                          NetworkVariableReadPermission.Everyone,
+                                          NetworkVariableWritePermission.Owner);
         [SerializeField] private FieldOfView fieldOfView;
         [SerializeField] private Transform origin;
 
@@ -28,9 +29,6 @@ namespace Core.MovementSystems
             if (!IsOwner) return;
             inputReader.MoveEvent += SetMoveInput;
             inputReader.MouseMoveEvent += PlayerFacingHandler;
-
-            //isMoving.OnValueChanged += OnIsMovingChanged;
-            //isRunning.OnValueChanged += OnIsRunningChanged;
         }
 
         public override void OnNetworkDespawn()
@@ -38,20 +36,7 @@ namespace Core.MovementSystems
             if (!IsOwner) return;
             inputReader.MoveEvent -= SetMoveInput;
             inputReader.MouseMoveEvent -= PlayerFacingHandler;
-
-            //isMoving.OnValueChanged -= OnIsMovingChanged;
-            //isRunning.OnValueChanged -= OnIsRunningChanged;
         }
-
-        /*private void OnIsMovingChanged(bool previousValue, bool newValue)
-        {
-            animator.SetBool("isMoving", newValue);
-        }
-
-        private void OnIsRunningChanged(bool previousValue, bool newValue)
-        {
-            animator.SetBool("isRunning", newValue);
-        }*/
 
         private void FixedUpdate()
         {
@@ -114,9 +99,7 @@ namespace Core.MovementSystems
         [ClientRpc]
         private void PlayMovingAnimationClientRpc(bool isMoving, bool isRunning)
         {
-            //if (!isMoving.Value) return;
-
-            animator.SetBool("isMoving", isMoving); // Adjust 'someThreshold' based on your speeds
+            animator.SetBool("isMoving", isMoving);
             animator.SetBool("isRunning", isRunning);
         }
 

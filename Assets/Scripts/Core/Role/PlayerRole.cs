@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Core.MovementSystems;
 using Unity.Netcode;
 using UnityEngine;
 using Random = System.Random;
@@ -9,6 +10,10 @@ public abstract class PlayerRole : NetworkBehaviour
     [field: SerializeField] protected RoleManager roleManager;
     public RoleManager RoleManager { get => roleManager ;
         set => roleManager = value; }
+    
+    [field: SerializeField] protected PlayerMovement playermovement;
+    public PlayerMovement Playermovement { get => playermovement ;
+        set => playermovement = value; }
 
     [SerializeField] protected Role currentRole = Role.NullRole;
     private Role CurrentRole { get => currentRole ;

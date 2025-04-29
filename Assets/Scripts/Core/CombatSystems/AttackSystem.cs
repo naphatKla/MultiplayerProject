@@ -72,33 +72,44 @@ namespace Core.CombatSystems
             if (!isAttackingInput) return;
             //if (isAttacking.Value) return;
             onStartAttack?.Invoke();
-            PlayAttackAnimationServerRpc();
+            PlayAttackAnimationServerRpc(animator.GetBool("isMonster"));
             AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage, NetworkObjectId);
         }
 
         [ServerRpc]
-        private void PlayAttackAnimationServerRpc()
+        private void PlayAttackAnimationServerRpc(bool isMonster)
         {
             if (isBeingDestroyed || !gameObject.activeSelf) return;
-            PlayAttackAnimationClientRpc();
+            PlayAttackAnimationClientRpc(isMonster);
         }
 
         [ClientRpc]
-        private void PlayAttackAnimationClientRpc()
+        private void PlayAttackAnimationClientRpc(bool isMonster)
         {
-            attackIndex = attackIndex switch
+            float resetTime;
+            if (!isMonster)
             {
-                1 => 2,
-                2 => 1,
-                _ => attackIndex
-            };
+                attackIndex = attackIndex switch
+                {
+                    1 => 2,
+                    2 => 1,
+                    _ => attackIndex
+                };
 
-            animator.SetInteger("attackIndex", attackIndex);
-            animator.SetTrigger("attack");
-            animator.SetBool("isAttacking", true);
+                animator.SetInteger("attackIndex", attackIndex);
+                animator.SetTrigger("attack");
+                animator.SetBool("isAttacking", true);
+                resetTime = 0.375f;
+            }
+            else
+            {
+                animator.SetTrigger("attack");
+                animator.SetBool("isAttacking", true);
+                resetTime = 2.5f;
+            }
 
             if (!IsOwner) return;
-            Invoke("ResetAttackServerRpc", 0.375f);
+            Invoke("ResetAttackServerRpc", resetTime);
         }
 
         [ServerRpc]

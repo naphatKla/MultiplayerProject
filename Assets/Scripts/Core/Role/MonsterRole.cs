@@ -8,7 +8,12 @@ public class MonsterRole : PlayerRole
 
     public void TranformMimic()
     {
-        tranformMimic = true;
+        if (!IsOwner)
+        {
+            return;
+        }
+        playermovement.IsMonster.Value = true;
+        playermovement.TransformToMonster(true);
         Debug.Log("Tranform to mimic");
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created

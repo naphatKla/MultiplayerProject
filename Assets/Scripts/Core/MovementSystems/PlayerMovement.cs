@@ -20,6 +20,11 @@ namespace Core.MovementSystems
                                           NetworkVariableWritePermission.Owner);
         [SerializeField] private FieldOfView fieldOfView;
         [SerializeField] private Transform origin;
+        [SerializeField]  private NetworkVariable<bool> isMonster = new NetworkVariable<bool>(false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Owner);
+        public NetworkVariable<bool> IsMonster { get { return isMonster;} set { isMonster = value; } }
+        
 
         [Header("Components")]
         [SerializeField] private Animator animator;
@@ -65,6 +70,18 @@ namespace Core.MovementSystems
             bool shouldFaceLeft = angle > 90 || angle < -90;
             UpdateFacingServerRpc(shouldFaceLeft);
         }
+
+        
+        public void TransformToMonster(bool isMonster)
+        {
+            if (!IsOwner) return;
+
+            if (isMonster)
+            {
+                origin.position = new Vector3(0.1f,-0.5f, 0);
+                origin.localScale = new Vector3(4, 4, 0);
+            }
+        }
         
         private void MovementHandler()
         {
@@ -75,7 +92,7 @@ namespace Core.MovementSystems
 
             isMoving.Value = !(movementInput.magnitude <= 0);
             isRunning.Value = curPlayerMoveSpeed > 15f;
-            PlayMovingAnimationServerRpc(isMoving.Value, isRunning.Value);
+            PlayMovingAnimationServerRpc(isMoving.Value, isRunning.Value, isMonster.Value);
             
             fieldOfView.SetOrigin(origin.position);
             Vector3 targetPoisition = GetMouseInWorldPosition();
@@ -91,22 +108,30 @@ namespace Core.MovementSystems
         }
 
         [ServerRpc]
-        private void PlayMovingAnimationServerRpc(bool isMoving, bool isRunning)
+        private void PlayMovingAnimationServerRpc(bool isMoving, bool isRunning, bool isMonster)
         {
-            PlayMovingAnimationClientRpc(isMoving, isRunning);
+            PlayMovingAnimationClientRpc(isMoving, isRunning, isMonster);
         }
 
         [ClientRpc]
-        private void PlayMovingAnimationClientRpc(bool isMoving, bool isRunning)
+        private void PlayMovingAnimationClientRpc(bool isMoving, bool isRunning, bool isMonster)
         {
             animator.SetBool("isMoving", isMoving);
             animator.SetBool("isRunning", isRunning);
+            animator.SetBool("isMonster", isMonster);
         }
 
         [ServerRpc]
         private void UpdateFacingServerRpc(bool shouldFaceLeft)
         {
-            UpdateFacingClientRpc(shouldFaceLeft);
+            if (isMonster.Value)
+            {
+                UpdateFacingClientRpc(!shouldFaceLeft);
+            }
+            else
+            {
+                UpdateFacingClientRpc(shouldFaceLeft);
+            }
         }
         
         [ClientRpc]

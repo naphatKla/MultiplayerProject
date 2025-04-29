@@ -19,6 +19,11 @@ public class GameHUD : Singleton<GameHUD>
     {
         mimicWinUI.SetActive(true);
     }
+    
+    public void ShowExplorerWinUI()
+    {
+        winUI.SetActive(true);
+    }
 
     public void LeaveGame()
     {

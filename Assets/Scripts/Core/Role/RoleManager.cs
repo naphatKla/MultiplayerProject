@@ -244,9 +244,9 @@ public class RoleManager : NetworkSingleton<RoleManager>
                     activeMonsterCount++;
             }
 
-        Debug.Log(
-            $"Active Players: {activePlayerCount}, Explorers: {activeExplorerCount}, Monsters: {activeMonsterCount}");
-
+        Debug.Log($"Active Players: {activePlayerCount}, Explorers: {activeExplorerCount}, Monsters: {activeMonsterCount}");
+        
+        // Check for Monster (Mimic) win condition
         if (activeMonsterCount == 1 && activeExplorerCount == 0)
         {
             var allExplorersInactive = true;
@@ -259,6 +259,20 @@ public class RoleManager : NetworkSingleton<RoleManager>
                 }
 
             if (allExplorersInactive) NotifyMimicWinClientRpc();
+        }
+        // Check for Explorer win condition
+        else if (activeMonsterCount == 0 && activeExplorerCount > 0)
+        {
+            var allMonstersInactive = true;
+            foreach (var kvp in PlayerRoles)
+                if (kvp.Value == Role.Monster && playerActiveStatus.ContainsKey(kvp.Key) &&
+                    playerActiveStatus[kvp.Key])
+                {
+                    allMonstersInactive = false;
+                    break;
+                }
+
+            if (allMonstersInactive) NotifyExplorerWinClientRpc();
         }
     }
 
@@ -282,6 +296,16 @@ public class RoleManager : NetworkSingleton<RoleManager>
             if (role == Role.Monster)
                 if (GameHUD.Instance != null)
                     GameHUD.Instance.ShowMimicWinUI();
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void NotifyExplorerWinClientRpc()
+    {
+        var localClientId = NetworkManager.Singleton.LocalClientId;
+        if (PlayerRoles.TryGetValue(localClientId, out var role))
+            if (role == Role.Explorer)
+                if (GameHUD.Instance != null)
+                    GameHUD.Instance.ShowExplorerWinUI();
     }
 
     // Fisher-Yates shuffle algorithm

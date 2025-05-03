@@ -6,7 +6,8 @@ namespace Core.InteractObj
     public enum InteractObjectType
     {
         Door,
-        Lever
+        Lever,
+        Trap
     }
 
     public class InteractObject : NetworkBehaviour
@@ -68,6 +69,14 @@ namespace Core.InteractObj
 
                 Debug.Log("Activate: " + gameObject.name);
                 gameObject.GetComponent<LeverInteract>().ActivateLever();
+                SetTest(1f, true);
+            }
+            else if(interactType.Value == InteractObjectType.Trap)
+            {
+                if (gameObject.GetComponent<Trap>() == null) return;
+
+                Debug.Log("Activate: " + gameObject.name);
+                gameObject.GetComponent<Trap>().DeactivateTrap();
                 SetTest(1f, true);
             }
         }

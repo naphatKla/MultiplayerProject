@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
+  m_Name: Short Torch
+  m_EditorClassIdentifier: 
+  m_AnimatedSprites:
+  - {fileID: -5424977179313688371, guid: 7e106cb5bbea90448a7a891751d13fe5, type: 3}
+  - {fileID: 3994171107800833415, guid: 7e106cb5bbea90448a7a891751d13fe5, type: 3}
+  - {fileID: 1469271244817470899, guid: 7e106cb5bbea90448a7a891751d13fe5, type: 3}
+  - {fileID: -3316829265086699851, guid: 7e106cb5bbea90448a7a891751d13fe5, type: 3}
+  m_MinSpeed: 1
+  m_MaxSpeed: 1
+  m_AnimationStartTime: 0
+  m_AnimationStartFrame: 0
+  m_TileColliderType: 0
+  m_TileAnimationFlags: 0

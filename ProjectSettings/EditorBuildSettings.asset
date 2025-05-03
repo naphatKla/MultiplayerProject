@@ -18,7 +18,7 @@ EditorBuildSettings:
     path: Assets/Aong/Scenes/Lobby.unity
     guid: a525dabf769d77f4883b2c3b38eefba0
   - enabled: 1
-    path: Assets/Scenes/GapScene 3.unity
+    path: Assets/Scenes/GapScene/GapScene 3.unity
     guid: e666c8e3004e458469d9c96cb95d5e4b
   - enabled: 1
     path: Assets/Scenes/EnemyAongScene.unity

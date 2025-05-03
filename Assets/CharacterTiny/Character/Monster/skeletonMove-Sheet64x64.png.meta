@@ -64,7 +64,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -112,6 +112,19 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -359,7 +372,17 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      skeletonMove-Sheet64x64_0: -8551903317908068206
+      skeletonMove-Sheet64x64_1: -9054279440545029359
+      skeletonMove-Sheet64x64_2: -8590445932026191518
+      skeletonMove-Sheet64x64_3: 2547543052023821183
+      skeletonMove-Sheet64x64_4: -1721908210119855325
+      skeletonMove-Sheet64x64_5: -4963014992659492152
+      skeletonMove-Sheet64x64_6: 7651012464053655141
+      skeletonMove-Sheet64x64_7: 1588405608800065045
+      skeletonMove-Sheet64x64_8: -1293435660053319316
+      skeletonMove-Sheet64x64_9: -3679201455303766561
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

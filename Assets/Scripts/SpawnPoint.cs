@@ -7,24 +7,38 @@ public class SpawnPoint : MonoBehaviour
 
     private void OnEnable()
     {
-        spawnPoints.Add(this);
+        if (!spawnPoints.Contains(this))
+        {
+            spawnPoints.Add(this);
+            Debug.Log($"SpawnPoint added at {transform.position}. Total spawn points: {spawnPoints.Count}");
+        }
     }
+
     private void OnDisable()
     {
-        spawnPoints.Remove(this);
+        if (spawnPoints.Remove(this))
+        {
+            Debug.Log($"SpawnPoint removed at {transform.position}. Total spawn points: {spawnPoints.Count}");
+        }
     }
+
     public static Vector3 GetRandomSpawnPos()
     {
-        if(spawnPoints.Count == 0)
+        if (spawnPoints.Count == 0)
         {
+            Debug.LogWarning("No spawn points available!");
             return Vector3.zero;
         }
-        return spawnPoints[Random.Range(0, spawnPoints.Count)].transform.position;
+
+        int index = Random.Range(0, spawnPoints.Count);
+        Vector3 position = spawnPoints[index].transform.position;
+        Debug.Log($"Selected spawn point {index} at position {position}");
+        return position;
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawSphere(transform.position, 1);
+        Gizmos.DrawSphere(transform.position, 1f);
     }
 }

@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
-    private bool isBeingDestroyed = false; // ป้องกันการเรียกซ้ำหลังจากเริ่มลบ
+    private bool isBeingDestroyed = false; 
 
     public void RemovePlayer()
     {
-        if (isBeingDestroyed) return; // ห้ามเรียกซ้ำถ้ากำลังลบอยู่
+        if (isBeingDestroyed) return;
 
         if (IsServer)
         {
@@ -15,8 +15,7 @@ public class PlayerController : NetworkBehaviour
             NetworkObject networkObject = GetComponent<NetworkObject>();
             if (networkObject != null)
             {
-                networkObject.Despawn(); // ลบออกจาก network ก่อน
-                // รอให้ despawn เสร็จสมบูรณ์ก่อน destroy
+                networkObject.Despawn();
                 Invoke(nameof(DestroySelf), 0.1f); // รอ 0.1 วินาที
             }
         }

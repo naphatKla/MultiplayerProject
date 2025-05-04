@@ -1087,6 +1087,7 @@ MonoBehaviour:
   roleManager: {fileID: 0}
   playermovement: {fileID: 6919210253630419978}
   currentRole: 0
+  mimicAnimatorController: {fileID: 9100000, guid: f71d4a00c90eeba4a818e6803e70cc43, type: 2}
   tranformMimic: 0
 --- !u!114 &8237215205989701037
 MonoBehaviour:

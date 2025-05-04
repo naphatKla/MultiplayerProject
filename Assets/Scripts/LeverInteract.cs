@@ -1,30 +1,38 @@
-using System.Globalization;
 using Unity.Netcode;
 using UnityEngine;
 
 public class LeverInteract : NetworkBehaviour
 {
-    public EnemyRoom enemyRoom; // Reference to the EnemyRoom script
+    public EnemyRoom enemyRoom;
+    public Sprite leverUpSprite;
+    public Sprite leverDownSprite; 
+    private SpriteRenderer spriteRenderer;
+    private bool isPulled = false;
+
+    private void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
 
     public void ActivateLever()
     {
         if (IsOwner && enemyRoom != null)
         {
             enemyRoom.Interact();
-            LeverPulledServerRpc(); // Sync animation for all clients
+            LeverPulledServerRpc(!isPulled);
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void LeverPulledServerRpc()
+    void LeverPulledServerRpc(bool newState)
     {
-        //LeverPulledClientRpc();
+        LeverPulledClientRpc(newState);
     }
 
-    //[ClientRpc]
-    /*void LeverPulledClientRpc()
+    [ClientRpc]
+    void LeverPulledClientRpc(bool newState)
     {
-        // Play lever animation
-        GetComponent<Animator>()?.SetTrigger("Pull");
-    }*/
+        isPulled = newState;
+        spriteRenderer.sprite = isPulled ? leverDownSprite : leverUpSprite;
+    }
 }

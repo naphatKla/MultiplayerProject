@@ -142,10 +142,20 @@ public class TreasureObject : NetworkBehaviour
                     interactable.canInteract.Value = true;
                 }
     }
-    
+
     private void PerformInteractionEffects()
     {
-        Debug.Log("Interaction effect triggered");
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in players)
+        {
+            MonsterRole monsterRole = player.GetComponent<MonsterRole>();
+            if (monsterRole != null && monsterRole.IsActive)
+            {
+                monsterRole.TranformMimic();
+            }
+        }
+
+        // Existing progress bar logic
         if (progressBar != null)
         {
             progressBar.gameObject.SetActive(false);

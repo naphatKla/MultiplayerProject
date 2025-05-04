@@ -8,12 +8,13 @@ namespace Core.HealthSystems
 {
     public class HealthSystem : NetworkBehaviour
     {
-        [field: SerializeField] public float MaxHealth { get; private set; } = 100;
+        [SerializeField] private float maxHealth = 100f; // Default max health
+        public float MaxHealth { get => maxHealth; private set => maxHealth = value; }
         [SerializeField] public NetworkVariable<float> currentHealth = new NetworkVariable<float>();
         [SerializeField] private List<Behaviour> disableOnDown;
         
         public Action OnDown { get; set; }
-        public Action OnDie { get; set;}
+        public Action OnDie { get; set; }
         public Action onTakeDamage;
         public Action<ulong> OnTakeDamageFromPlayer { get; set; }
         private NetworkVariable<bool> isDead = new NetworkVariable<bool>();
@@ -26,7 +27,35 @@ namespace Core.HealthSystems
             if (!IsServer) return;
             currentHealth.Value = MaxHealth;
         }
-        
+
+        public void SetMaxHealth(float newMaxHealth, bool setCurrentHealth = true)
+        {
+            if (!IsOwner) return;
+            SetMaxHealthServerRpc(newMaxHealth, setCurrentHealth);
+        }
+
+        [ServerRpc]
+        private void SetMaxHealthServerRpc(float newMaxHealth, bool setCurrentHealth)
+        {
+            MaxHealth = newMaxHealth;
+            if (setCurrentHealth)
+            {
+                currentHealth.Value = newMaxHealth;
+            }
+            else
+            {
+                currentHealth.Value = Mathf.Min(currentHealth.Value, newMaxHealth);
+            }
+            SetMaxHealthClientRpc(newMaxHealth);
+        }
+
+        [ClientRpc]
+        private void SetMaxHealthClientRpc(float newMaxHealth)
+        {
+            MaxHealth = newMaxHealth;
+            Debug.Log($"Client {NetworkManager.Singleton.LocalClientId} updated MaxHealth to {newMaxHealth}");
+        }
+
         public void TakeDamage(float damageValue, ulong? attackerID = null)
         {
             if (!IsServer) return;
@@ -78,11 +107,11 @@ namespace Core.HealthSystems
                 behaviour.enabled = true;
             
             if (!IsOwner) return;
-            ReviveServerRPC(hpOnRevive);
+            ReviveServerRpc(hpOnRevive);
         }
 
         [ServerRpc]
-        private void ReviveServerRPC(float hpOnRevive)
+        private void ReviveServerRpc(float hpOnRevive)
         {
             isDead.Value = false;
             ModifyHealth(hpOnRevive);
@@ -91,12 +120,12 @@ namespace Core.HealthSystems
         public void Dead()
         {
             if (!IsOwner) return;
-            DeadServerRPC();
+            DeadServerRpc();
             GameHUD.Instance.deathUI.SetActive(true);
         }
 
         [ServerRpc]
-        private void DeadServerRPC()
+        private void DeadServerRpc()
         {
             isDead.Value = true;
             RoleManager.Instance.UpdatePlayerActiveStatus(OwnerClientId, false);
@@ -106,22 +135,21 @@ namespace Core.HealthSystems
         public void SetActiveFalse()
         {
             if (!IsOwner) return;
-            SetActiveFalseServerRPC();
+            SetActiveFalseServerRpc();
             GameHUD.Instance.winUI.SetActive(true);
         }
 
         [ServerRpc]
-        private void SetActiveFalseServerRPC()
+        private void SetActiveFalseServerRpc()
         {
             isDead.Value = true;
             SetActiveOnClientRpc();
         }
         
-        
         [ClientRpc]
         private void DownOnClientRpc()
         {
-            if(LayerMask.LayerToName(gameObject.layer) == "Enemy")
+            if (LayerMask.LayerToName(gameObject.layer) == "Enemy")
             {
                 Destroy(gameObject);
                 return;

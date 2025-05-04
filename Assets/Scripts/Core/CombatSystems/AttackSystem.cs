@@ -10,6 +10,7 @@ namespace Core.CombatSystems
     {
         [SerializeField] private InputReader inputReader;
         [SerializeField] private float attackDamage;
+        [SerializeField] private float monsterAttackDamage = 50f; // Damage when player is a Monster
         [SerializeField] private Vector2 attackSize;
         [SerializeField] private Vector2 offset;
         [SerializeField] private LayerMask targetLayer;
@@ -18,26 +19,35 @@ namespace Core.CombatSystems
 
         [Space] [Header("Dependencies")]
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private Core.MovementSystems.PlayerMovement playerMovement; // Reference to PlayerMovement
         public Action onStartAttack;
 
         [Header("Components")]
         [SerializeField] private Animator animator;
         
         private bool isBeingDestroyed = false;
-    
+
         private Vector2 AttackCenterPosition
         {
             get
             {
-                Vector2 offsetX = new Vector2(offset.x,0);
+                Vector2 offsetX = new Vector2(offset.x, 0);
                 Vector2 offsetY = new Vector2(0, offset.y);
+                bool isMonster = playerMovement != null && playerMovement.IsMonster.Value;
 
-                if (spriteRenderer.flipX)
+                // Invert offset direction for monsters to match inverted flipX
+                if (isMonster)
                 {
-                    return (Vector2)transform.position + offsetY - offsetX;
+                    return spriteRenderer.flipX
+                        ? (Vector2)transform.position + offsetY + offsetX // FlipX true: offset to right
+                        : (Vector2)transform.position + offsetY - offsetX; // FlipX false: offset to left
                 }
-                
-                return (Vector2)transform.position + offsetY + offsetX;
+                else
+                {
+                    return spriteRenderer.flipX
+                        ? (Vector2)transform.position + offsetY - offsetX // FlipX true: offset to left
+                        : (Vector2)transform.position + offsetY + offsetX; // FlipX false: offset to right
+                }
             }
         }
 
@@ -65,15 +75,25 @@ namespace Core.CombatSystems
             inputReader.PrimaryAttackEvent -= AttackHandler;
         }
 
+        private void Awake()
+        {
+            playerMovement = GetComponent<Core.MovementSystems.PlayerMovement>();
+            if (playerMovement == null)
+            {
+                Debug.LogError("PlayerMovement component not found on AttackSystem!");
+            }
+        }
+
         private void AttackHandler(bool isAttackingInput)
         {
             if (this == null || !gameObject.activeSelf) return;
             if (!IsOwner || isBeingDestroyed) return;
             if (!isAttackingInput) return;
-            //if (isAttacking.Value) return;
             onStartAttack?.Invoke();
-            PlayAttackAnimationServerRpc(animator.GetBool("isMonster"));
-            AttackHandlerServerRpc(AttackCenterPosition, attackSize, attackDamage, NetworkObjectId);
+            bool isMonster = playerMovement != null && playerMovement.IsMonster.Value;
+            float damage = isMonster ? monsterAttackDamage : attackDamage;
+            PlayAttackAnimationServerRpc(isMonster);
+            AttackHandlerServerRpc(AttackCenterPosition, attackSize, damage, NetworkObjectId);
         }
 
         [ServerRpc]
@@ -103,13 +123,12 @@ namespace Core.CombatSystems
             }
             else
             {
-                animator.SetTrigger("attack");
                 animator.SetBool("isAttacking", true);
-                resetTime = 2.5f;
+                resetTime = 1f;
             }
 
             if (!IsOwner) return;
-            Invoke("ResetAttackServerRpc", resetTime);
+            Invoke(nameof(ResetAttackServerRpc), resetTime);
         }
 
         [ServerRpc]
@@ -123,11 +142,12 @@ namespace Core.CombatSystems
         {
             animator.SetBool("isAttacking", false);
             animator.SetInteger("attackIndex", 0);
+            Debug.Log($"Reset attack animation: isAttacking={animator.GetBool("isAttacking")}");
         }
 
         public void EndAttack()
         {
-            //animator.SetInteger("attackIndex", 0);
+            // Optional: Can be called by animation events if needed
         }
 
         [ServerRpc]

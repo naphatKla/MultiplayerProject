@@ -76,11 +76,28 @@ namespace Core.MovementSystems
         {
             if (!IsOwner) return;
 
+            IsMonster.Value = isMonster;
             if (isMonster)
             {
-                origin.position = new Vector3(0.1f,-0.5f, 0);
-                origin.localScale = new Vector3(4, 4, 0);
+                Vector3 newPosition = transform.position + new Vector3(0.1f, -0.5f, 0);
+                Vector3 newScale = new Vector3(4, 4, 1);
+                TransformToMonsterServerRpc(newPosition, newScale);
             }
+        }
+
+        [ServerRpc]
+        private void TransformToMonsterServerRpc(Vector3 newPosition, Vector3 newScale)
+        {
+            origin.position = newPosition;
+            origin.localScale = newScale;
+            TransformToMonsterClientRpc(newPosition, newScale);
+        }
+
+        [ClientRpc]
+        private void TransformToMonsterClientRpc(Vector3 newPosition, Vector3 newScale)
+        {
+            origin.position = newPosition;
+            origin.localScale = newScale;
         }
         
         private void MovementHandler()

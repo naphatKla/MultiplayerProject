@@ -14,9 +14,7 @@ public enum Role
 public enum ExplorerClass
 {
     NullClass,
-    Paladin,
-    Wizard,
-    Healer
+    Adventure
 }
 
 public class RoleManager : NetworkSingleton<RoleManager>
@@ -125,9 +123,7 @@ public class RoleManager : NetworkSingleton<RoleManager>
         // Classes to assign (excluding the 'Null' class)
         var availableClasses = new List<ExplorerClass>
         {
-            ExplorerClass.Paladin,
-            ExplorerClass.Wizard,
-            ExplorerClass.Healer
+            ExplorerClass.Adventure
         };
 
         // Shuffle the available classes to randomize the assignment

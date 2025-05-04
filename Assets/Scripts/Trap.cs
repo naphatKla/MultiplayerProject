@@ -13,6 +13,7 @@ public class Trap : NetworkBehaviour
     [SerializeField] private Collider2D triggerCollider;
 
     private bool isActivated = false;
+    private bool isResetting = false;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -34,45 +35,31 @@ public class Trap : NetworkBehaviour
         TrapActivateClientRpc();
     }
     
-    public void DeactivateTrap()
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestResetTrapServerRpc()
     {
-        Invoke(nameof(ResetTrap), resetTrapTime);
+        if (!isActivated || isResetting) return;
+
+        isResetting = true;
+        Debug.Log("Resetting trap...");
+        Invoke(nameof(FinalizeResetTrap), resetTrapTime);
+    }
+
+    private void FinalizeResetTrap()
+    {
+        isActivated = false;
+        isResetting = false;
+        TrapActivateClientRpc();
+        Debug.Log("Trap has been reset.");
     }
 
     [ClientRpc]
     private void TrapActivateClientRpc()
     {
         if (animator != null)
-            animator.SetTrigger("Activate");
-    }
-
-    private void ResetTrap()
-    {
-        isActivated = false;
+        {
+            animator.SetTrigger("isActive");
+        }
     }
     
-    // ✅ ปุ่มใน Inspector (คลิกขวา component → Call ToggleTrap)
-    [ContextMenu("Toggle Trap")]
-    private void ToggleTrap()
-    {
-        if (isActivated)
-        {
-            Debug.Log("Trap is active. Resetting...");
-            CancelInvoke(nameof(ResetTrap));
-            ResetTrap();
-        }
-        else
-        {
-            Debug.Log("Trap is inactive. Activating...");
-            ActivateTrapFake(); // ใช้เวอร์ชันปลอมของ Activate
-        }
-    }
-
-    // ✅ ใช้สำหรับทดสอบ Activate ผ่านปุ่ม (ไม่ต้องมี Player)
-    private void ActivateTrapFake()
-    {
-        isActivated = true;
-        TrapActivateClientRpc();
-        Invoke(nameof(ResetTrap), resetTrapTime);
-    }
 }

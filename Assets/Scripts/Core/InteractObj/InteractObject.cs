@@ -76,8 +76,7 @@ namespace Core.InteractObj
                 if (gameObject.GetComponent<Trap>() == null) return;
 
                 Debug.Log("Activate: " + gameObject.name);
-                gameObject.GetComponent<Trap>().DeactivateTrap();
-                SetTest(1f, true);
+                gameObject.GetComponent<Trap>().RequestResetTrapServerRpc();
             }
         }
 

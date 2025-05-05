@@ -76,6 +76,7 @@ namespace Core.HealthSystems
                 animator.SetTrigger("isHurt");
             
             onTakeDamage?.Invoke();
+            SoundEffectManager.Instance.PlayGlobal3DAtPosition("Hurt", transform.position, 1f,1f,5f);
         }
         
         [ClientRpc]
@@ -130,6 +131,7 @@ namespace Core.HealthSystems
             isDead.Value = true;
             RoleManager.Instance.UpdatePlayerActiveStatus(OwnerClientId, false);
             DeadOnClientRpc();
+            SoundEffectManager.Instance.PlayGlobal3DAtPosition("Dead", transform.position, 1f,1f,5f);
         }
         
         public void SetActiveFalse()

@@ -18,6 +18,7 @@ public class LobbiesList : MonoBehaviour
 
     public async void RefreshList()
     {
+        SoundEffectManager.Instance.PlayLocal("ButtonClick", 0.5f);
         if(isRefreshing) { return; }
         isRefreshing = true;
         try
@@ -59,6 +60,7 @@ public class LobbiesList : MonoBehaviour
 
     public async void JoinAsync(Lobby lobby)
     {
+        SoundEffectManager.Instance.PlayLocal("ButtonClick", 0.5f);
         if (isJoining) { return; }
         isJoining = true;
         try

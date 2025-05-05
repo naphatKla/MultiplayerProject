@@ -760,6 +760,7 @@ MonoBehaviour:
   origin: {fileID: 5352948357346425887}
   isMonster:
     m_InternalValue: 0
+  footstepInterval: 0.4
   animator: {fileID: 2587009846733415165}
 --- !u!114 &4762467204580182300
 MonoBehaviour:
@@ -774,7 +775,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  <MaxHealth>k__BackingField: 100
+  maxHealth: 100
   currentHealth:
     m_InternalValue: 0
   disableOnDown:
@@ -814,13 +815,16 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   inputReader: {fileID: 11400000, guid: 0e0079011af07bb479718e2e29be1b85, type: 2}
   attackDamage: 20
+  monsterAttackDamage: 50
   attackSize: {x: 2.04, y: 1.33}
   offset: {x: 0.9, y: -0.32}
   targetLayer:
     serializedVersion: 2
     m_Bits: 4104
   attackIndex: 1
+  attackCooldown: 0.25
   spriteRenderer: {fileID: 8688667412604255078}
+  playerMovement: {fileID: 0}
   animator: {fileID: 2587009846733415165}
 --- !u!114 &7687738981658957471
 MonoBehaviour:

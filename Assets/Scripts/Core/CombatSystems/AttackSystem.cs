@@ -10,16 +10,18 @@ namespace Core.CombatSystems
     {
         [SerializeField] private InputReader inputReader;
         [SerializeField] private float attackDamage;
-        [SerializeField] private float monsterAttackDamage = 50f; // Damage when player is a Monster
+        [SerializeField] private float monsterAttackDamage = 50f;
         [SerializeField] private Vector2 attackSize;
         [SerializeField] private Vector2 offset;
         [SerializeField] private LayerMask targetLayer;
         private NetworkVariable<bool> isAttacking = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
         [SerializeField] private int attackIndex = 1;
+        [SerializeField] private float attackCooldown = 0.5f; 
+        private float lastAttackTime = -Mathf.Infinity;
 
         [Space] [Header("Dependencies")]
         [SerializeField] private SpriteRenderer spriteRenderer;
-        [SerializeField] private Core.MovementSystems.PlayerMovement playerMovement; // Reference to PlayerMovement
+        [SerializeField] private Core.MovementSystems.PlayerMovement playerMovement; 
         public Action onStartAttack;
 
         [Header("Components")]
@@ -89,6 +91,11 @@ namespace Core.CombatSystems
             if (this == null || !gameObject.activeSelf) return;
             if (!IsOwner || isBeingDestroyed) return;
             if (!isAttackingInput) return;
+            
+            if (Time.time < lastAttackTime + attackCooldown) { return; }
+
+            lastAttackTime = Time.time;
+
             onStartAttack?.Invoke();
             bool isMonster = playerMovement != null && playerMovement.IsMonster.Value;
             float damage = isMonster ? monsterAttackDamage : attackDamage;
@@ -120,11 +127,13 @@ namespace Core.CombatSystems
                 animator.SetTrigger("attack");
                 animator.SetBool("isAttacking", true);
                 resetTime = 0.375f;
+                SoundEffectManager.Instance.PlayGlobal3DAtPosition("Attack", transform.position, 1f,1f,7f);
             }
             else
             {
                 animator.SetBool("isAttacking", true);
                 resetTime = 1f;
+                SoundEffectManager.Instance.PlayGlobal3DAtPosition("Attack", transform.position, 1f,1f,7f);
             }
 
             if (!IsOwner) return;
@@ -160,6 +169,7 @@ namespace Core.CombatSystems
                 if (targetHealth.NetworkObjectId == attackerID) continue;
                 targetHealth.TakeDamage(damage, attackerID);
                 Debug.Log($"Hit {target.name} : {damage} damage");
+                SoundEffectManager.Instance.PlayGlobal3DAtPosition("Hit", target.transform.position, 1f,1f,5f);
             }
         }
         

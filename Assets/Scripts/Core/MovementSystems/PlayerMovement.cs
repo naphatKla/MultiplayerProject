@@ -23,6 +23,10 @@ namespace Core.MovementSystems
         [SerializeField]  private NetworkVariable<bool> isMonster = new NetworkVariable<bool>(false,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Owner);
+        
+        private float footstepTimer = 0f;
+        [SerializeField] private float footstepInterval = 0.4f; 
+        
         public NetworkVariable<bool> IsMonster { get { return isMonster;} set { isMonster = value; } }
         
 
@@ -115,6 +119,20 @@ namespace Core.MovementSystems
             Vector3 targetPoisition = GetMouseInWorldPosition();
             Vector3 aimDir = (targetPoisition - transform.position).normalized;
             fieldOfView.SetAimDirection(aimDir);
+            
+            if (movementInput.magnitude > 0.1f)
+            {
+                footstepTimer -= Time.fixedDeltaTime;
+                if (footstepTimer <= 0f)
+                {
+                    SoundEffectManager.Instance.PlayLocal("Walk", 1f);
+                    footstepTimer = footstepInterval;
+                }
+            }
+            else
+            {
+                footstepTimer = 0f;
+            }
         }
         
         public Vector3 GetMouseInWorldPosition()

@@ -12,6 +12,7 @@ public class LobbyMenu : MonoBehaviour
 
     public void StartGame()
     {
+        SoundEffectManager.Instance.PlayLocal("ButtonClick", 0.5f);
         if (!NetworkManager.Singleton.IsHost)
         {
             Debug.Log("Only the Host can start the game!");
@@ -29,6 +30,7 @@ public class LobbyMenu : MonoBehaviour
 
     public void LeaveLobby()
     {
+        SoundEffectManager.Instance.PlayLocal("ButtonClick", 0.5f);
         if (NetworkManager.Singleton == null)
         {
             Debug.LogWarning("NetworkManager is not available, loading Menu directly!");

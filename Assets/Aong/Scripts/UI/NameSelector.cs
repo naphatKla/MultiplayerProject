@@ -33,6 +33,7 @@ public class NameSelector : MonoBehaviour
 
     public void Connect()
     {
+        SoundEffectManager.Instance.PlayLocal("ButtonClick", 0.5f);
         PlayerPrefs.SetString(PlayerNameKey,nameField.text);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }

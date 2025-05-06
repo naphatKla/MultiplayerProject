@@ -27,10 +27,12 @@ public class MonsterRole : NetworkBehaviour
     private const int requiredItems = 3;
     private NetworkVariable<bool> canTransformPermanently = new NetworkVariable<bool>(false);
     public NetworkVariable<bool> transformMimic = new NetworkVariable<bool>(false);
+    
+    private NetworkVariable<bool> isMonster = new NetworkVariable<bool>(false);
 
     public RoleManager RoleManager { get; set; }
 
-    public bool IsActive => enabled;
+    public bool IsActive => isMonster.Value;
 
     private void Awake()
     {
@@ -59,38 +61,17 @@ public class MonsterRole : NetworkBehaviour
 
     private void Start()
     {
-        if (RoleManager.Instance != null && RoleManager.Instance.PlayerRoles != null)
-        {
-            ulong clientId = NetworkManager.Singleton.LocalClientId;
-            if (RoleManager.Instance.PlayerRoles.TryGetValue(clientId, out Role assignedRole))
-            {
-                if (assignedRole != Role.Monster)
-                {
-                    enabled = false;
-                    DeactivateUI();
-                    return;
-                }
-                else
-                {
-                    Debug.Log($"Client {clientId} is Monster. Initializing UI for IsOwner: {IsOwner}.");
-                    if (IsOwner)
-                    {
-                        InitializeUI();
-                    }
-                }
-            }
-            else
-            {
-                enabled = false;
-                DeactivateUI();
-                return;
-            }
-        }
-        else
+        if (!IsActive)
         {
             enabled = false;
             DeactivateUI();
-            return;
+        }
+        else
+        {
+            if (IsOwner)
+            {
+                InitializeUI();
+            }
         }
     }
 
@@ -167,6 +148,18 @@ public class MonsterRole : NetworkBehaviour
             if (transformationSlider != null)
             {
                 transformationSlider.gameObject.SetActive(false);
+            }
+        }
+    }
+    
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        if (IsServer)
+        {
+            if (RoleManager.Instance.PlayerRoles.TryGetValue(OwnerClientId, out Role assignedRole))
+            {
+                isMonster.Value = assignedRole == Role.Monster;
             }
         }
     }

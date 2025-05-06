@@ -56,7 +56,6 @@ public class Collectible : NetworkBehaviour
         MonsterRole monsterRole = player.GetComponent<MonsterRole>();
         if (monsterRole == null || !monsterRole.IsActive || monsterRole.transformMimic.Value)
         {
-            Debug.LogError(monsterRole + " " + monsterRole.IsActive + " " + monsterRole.transformMimic.Value);
             return;
         }
 

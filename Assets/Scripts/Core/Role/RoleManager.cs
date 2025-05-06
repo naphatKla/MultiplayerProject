@@ -112,7 +112,6 @@ public class RoleManager : NetworkSingleton<RoleManager>
     {
         if (!IsServer) return;
 
-        // Filter out players who have the Explorer role
         var explorerIds = new List<ulong>();
         foreach (var kvp in PlayerRoles)
             if (kvp.Value == Role.Explorer)
@@ -120,35 +119,14 @@ public class RoleManager : NetworkSingleton<RoleManager>
 
         var assignedClasses = new Dictionary<ulong, ExplorerClass>();
 
-        // Classes to assign (excluding the 'Null' class)
-        var availableClasses = new List<ExplorerClass>
-        {
-            ExplorerClass.Adventure
-        };
-
-        // Shuffle the available classes to randomize the assignment
-        ShuffleList(availableClasses);
-
-        // Assign each explorer a random class without duplication
-        var classIndex = 0;
         foreach (var explorerId in explorerIds)
         {
-            if (classIndex >= availableClasses.Count) break; // Stop if all classes are assigned
-
-            // Assign the class to the explorer
-            var assignedClass = availableClasses[classIndex];
-            assignedClasses[explorerId] = assignedClass;
-
-            // Debug log to track assignment
-            Debug.Log($"Explorer {explorerId} assigned class: {assignedClass}");
-
-            classIndex++;
+            assignedClasses[explorerId] = ExplorerClass.Adventure;
         }
 
         var ids = assignedClasses.Keys.ToArray();
         var classes = assignedClasses.Values.ToArray();
 
-        // Update class assignment on clients
         UpdateManagerExplorerClassRpc(ids, classes);
     }
 

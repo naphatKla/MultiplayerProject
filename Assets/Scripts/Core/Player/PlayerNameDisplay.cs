@@ -5,7 +5,7 @@ using Unity.Collections;
 public class PlayerNameDisplay : MonoBehaviour
 {
     [SerializeField] private PlayerData player;
-    [SerializeField] private TMP_Text playerNameText;
+    [SerializeField] public TMP_Text playerNameText;
 
     private void Start()
     {

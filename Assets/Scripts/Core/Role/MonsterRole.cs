@@ -1,91 +1,324 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+using TMPro;
+using Core.MovementSystems;
 
-public class MonsterRole : PlayerRole
+public class MonsterRole : NetworkBehaviour
 {
-    [SerializeField] private RuntimeAnimatorController mimicAnimatorController; // Mimic's Animator Controller
-    private bool isActive = true;
-    private Animator animator; // Reference to the player's Animator
+    [SerializeField] private RuntimeAnimatorController mimicAnimatorController;
+    [SerializeField] private RuntimeAnimatorController playerAnimatorController;
+    [SerializeField] private GameObject bloodCountUIPrefab;
+    [SerializeField] private GameObject transformReadyUIPrefab;
+    [SerializeField] private Slider transformationSlider;
 
-    public bool IsActive => isActive; // Public property to check if MonsterRole is active
-    public bool tranformMimic = false;
+    private GameObject bloodUIInstance;
+    private GameObject transformReadyUIInstance;
+    private TMP_Text bloodCountText;
+    private TMP_Text transformReadyText;
+    private PlayerMovement playerMovement;
+
+    private PlayerNameDisplay displayName;
+    private Animator animator;
+    public bool isTransforming = false;
+    private float transformationDuration = 15f;
+    private NetworkVariable<int> collectedItems = new NetworkVariable<int>(0);
+    private const int requiredItems = 3;
+    private NetworkVariable<bool> canTransformPermanently = new NetworkVariable<bool>(false);
+    public NetworkVariable<bool> transformMimic = new NetworkVariable<bool>(false);
+
+    public RoleManager RoleManager { get; set; }
+
+    public bool IsActive => enabled;
 
     private void Awake()
     {
-        // Get the Animator component on the player
         animator = GetComponent<Animator>();
-        if (animator == null)
+        playerMovement = GetComponent<PlayerMovement>();
+        displayName = GetComponent<PlayerNameDisplay>();
+        transformationSlider.gameObject.SetActive(false);
+        collectedItems.OnValueChanged += (oldValue, newValue) =>
         {
-            Debug.LogError("Animator component not found on player!");
-        }
+            UpdateBloodText();
+            if (IsOwner && newValue >= requiredItems)
+            {
+                canTransformPermanently.Value = true;
+                if (transformReadyText != null && !transformMimic.Value)
+                {
+                    transformReadyText.gameObject.SetActive(true);
+                    transformReadyText.text = "Transform Ready! Press T";
+                }
+            }
+            else if (IsOwner && newValue < requiredItems && transformReadyText != null)
+            {
+                transformReadyText.gameObject.SetActive(false);
+            }
+        };
     }
 
     private void Start()
     {
-        // Check RoleManager for this player's role and update state
         if (RoleManager.Instance != null && RoleManager.Instance.PlayerRoles != null)
         {
             ulong clientId = NetworkManager.Singleton.LocalClientId;
             if (RoleManager.Instance.PlayerRoles.TryGetValue(clientId, out Role assignedRole))
             {
-                currentRole = assignedRole; // Update currentRole from PlayerRole
                 if (assignedRole != Role.Monster)
                 {
-                    isActive = false;
                     enabled = false;
-                    Debug.Log($"MonsterRole for client {clientId} disabled (Role: {assignedRole})");
+                    DeactivateUI();
+                    return;
                 }
                 else
                 {
-                    isActive = true;
-                    enabled = true;
-                    Debug.Log($"MonsterRole for client {clientId} active (Role: {assignedRole})");
+                    if (IsOwner)
+                    {
+                        InitializeUI();
+                    }
                 }
             }
             else
             {
-                Debug.LogWarning($"No role found for client {clientId} in RoleManager.PlayerRoles");
-                isActive = false;
                 enabled = false;
+                DeactivateUI();
+                return;
             }
         }
         else
         {
-            Debug.LogWarning("RoleManager or PlayerRoles not initialized, disabling MonsterRole");
-            isActive = false;
             enabled = false;
+            DeactivateUI();
+            return;
         }
     }
 
-    public void TranformMimic()
+    private void InitializeUI()
     {
-        if (!IsOwner)
+        if (!IsOwner) return;
+
+        Debug.Log($"Initializing UI for Client {NetworkManager.Singleton.LocalClientId}");
+        // Initialize Blood Count UI
+        if (bloodCountUIPrefab != null)
         {
-            return;
+            bloodUIInstance = Instantiate(bloodCountUIPrefab);
+            bloodUIInstance.transform.SetParent(GameObject.Find("Canvas").transform, false);
+            bloodCountText = bloodUIInstance.GetComponentInChildren<TMP_Text>();
+            if (bloodCountText == null)
+            {
+                Debug.LogError("bloodCountText not found in bloodCountUIPrefab. Ensure it has a TMP_Text component.");
+            }
+            else
+            {
+                bloodCountText.gameObject.SetActive(true);
+                UpdateBloodText();
+            }
+        }
+        else
+        {
+            Debug.LogWarning("bloodCountUIPrefab not assigned in MonsterRole.");
         }
 
-        if (playermovement == null)
+        // Initialize Transform Ready UI
+        if (transformReadyUIPrefab != null)
         {
-            Debug.LogError("PlayerMovement component not found!");
-            return;
+            transformReadyUIInstance = Instantiate(transformReadyUIPrefab);
+            transformReadyUIInstance.transform.SetParent(GameObject.Find("Canvas").transform, false);
+            transformReadyText = transformReadyUIInstance.GetComponentInChildren<TMP_Text>();
+            if (transformReadyText == null)
+            {
+                Debug.LogError("transformReadyText not found in transformReadyUIPrefab. Ensure it has a TMP_Text component.");
+            }
+            else
+            {
+                transformReadyText.gameObject.SetActive(false);
+            }
         }
-        
-        playermovement.IsMonster.Value = true;
-        playermovement.TransformToMonster(true);
-        tranformMimic = true;
-        
+        else
+        {
+            Debug.LogWarning("transformReadyUIPrefab not assigned in MonsterRole.");
+        }
+
+        // Initialize Slider
+        if (transformationSlider != null)
+        {
+            transformationSlider.gameObject.SetActive(false);
+            transformationSlider.maxValue = transformationDuration;
+            transformationSlider.minValue = 0f;
+        }
+        else
+        {
+            Debug.LogWarning("transformationSlider not assigned in MonsterRole.");
+        }
+    }
+
+    private void DeactivateUI()
+    {
+        if (IsOwner)
+        {
+            if (bloodUIInstance != null)
+            {
+                bloodUIInstance.SetActive(false);
+            }
+            if (transformReadyUIInstance != null)
+            {
+                transformReadyUIInstance.SetActive(false);
+            }
+            if (transformationSlider != null)
+            {
+                transformationSlider.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (bloodUIInstance != null)
+        {
+            Destroy(bloodUIInstance);
+        }
+        if (transformReadyUIInstance != null)
+        {
+            Destroy(transformReadyUIInstance);
+        }
+    }
+
+    private void Update()
+    {
+        if (!IsOwner || !IsActive || isTransforming) return;
+
+        if (UnityEngine.Input.GetKeyDown(KeyCode.T) && canTransformPermanently.Value)
+        {
+            StartCoroutine(TransformSequence());
+        }
+    }
+
+    private void UpdateBloodText()
+    {
+        if (bloodCountText != null && IsOwner)
+        {
+            bloodCountText.text = $"Blood: {collectedItems.Value}/{requiredItems}";
+            if (bloodUIInstance != null)
+            {
+                bloodUIInstance.SetActive(true);
+            }
+        }
+    }
+
+    private IEnumerator TransformSequence()
+    {
+        isTransforming = true;
+        TransformMimic();
+
+        float elapsedTime = 0f;
+        if (transformationSlider != null && IsOwner && IsActive)
+        {
+            transformationSlider.gameObject.SetActive(true);
+            transformationSlider.value = transformationDuration;
+        }
+
+        while (elapsedTime < transformationDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            if (transformationSlider != null && IsOwner && IsActive)
+            {
+                transformationSlider.value = transformationDuration - elapsedTime;
+            }
+            yield return null;
+        }
+
+        RevertToPlayer();
+        isTransforming = false;
+
+        if (transformationSlider != null && IsOwner && IsActive)
+        {
+            transformationSlider.gameObject.SetActive(false);
+        }
+    }
+
+    public void TransformMimic()
+    {
+        if (!IsOwner) return;
+
+        transformMimic.Value = true;
         var healthSystem = GetComponent<Core.HealthSystems.HealthSystem>();
         if (healthSystem != null)
         {
             healthSystem.SetMaxHealth(1000f, true);
         }
-        
+
+        if (playerMovement != null)
+        {
+            playerMovement.TransformToMonster(true);
+        }
+
+
         TransformMimicServerRpc();
+        if (transformReadyText != null)
+        {
+            transformReadyText.gameObject.SetActive(false);
+        }
+    }
+
+    public void RevertToPlayer()
+    {
+        if (!IsOwner) return;
+
+        transformMimic.Value = false;
+        var healthSystem = GetComponent<Core.HealthSystems.HealthSystem>();
+        if (healthSystem != null)
+        {
+            healthSystem.SetMaxHealth(100f, true);
+        }
+
+        if (playerMovement != null)
+        {
+            playerMovement.TransformToMonster(false);
+        }
+
+        RevertToPlayerServerRpc();
+        ResetCollectedItemsServerRpc();
+    }
+
+    [ServerRpc]
+    public void CollectItemServerRpc()
+    {
+        collectedItems.Value++;
+        if (collectedItems.Value >= requiredItems)
+        {
+            canTransformPermanently.Value = true;
+        }
+    }
+
+    [ServerRpc]
+    private void ResetCollectedItemsServerRpc()
+    {
+        collectedItems.Value = 0;
+        canTransformPermanently.Value = false;
+        UpdateCollectionProgressClientRpc(collectedItems.Value);
+    }
+
+    [ClientRpc]
+    private void UpdateCollectionProgressClientRpc(int currentItems)
+    {
+        if (IsOwner)
+        {
+            UpdateBloodText();
+            if (transformReadyText != null)
+            {
+                transformReadyText.gameObject.SetActive(currentItems >= requiredItems && !transformMimic.Value);
+                if (currentItems >= requiredItems)
+                {
+                    transformReadyText.text = "Transform Ready! Press T";
+                }
+            }
+        }
     }
 
     [ServerRpc]
     private void TransformMimicServerRpc()
     {
+        Debug.Log($"TransformMimicServerRpc called for {gameObject.name}");
         TransformMimicClientRpc();
     }
 
@@ -95,26 +328,38 @@ public class MonsterRole : PlayerRole
         if (animator != null && mimicAnimatorController != null)
         {
             animator.runtimeAnimatorController = mimicAnimatorController;
-            Debug.Log("Animator switched to Mimic controller");
+        }
+        if (displayName != null)
+        {
+            displayName.playerNameText.gameObject.SetActive(false);
         }
     }
 
-    void Update()
+    [ServerRpc]
+    private void RevertToPlayerServerRpc()
     {
-        if (!isActive) return;
-        if (currentRole != Role.Monster)
+        RevertToPlayerClientRpc();
+    }
+
+    [ClientRpc]
+    private void RevertToPlayerClientRpc()
+    {
+        if (animator != null && playerAnimatorController != null)
         {
-            return;
+            animator.runtimeAnimatorController = playerAnimatorController;
+        }
+        if (displayName != null)
+        {
+            displayName.playerNameText.gameObject.SetActive(true);
         }
     }
 
-    protected override void UpdateRole(Role role)
+    private void OnDrawGizmos()
     {
-        if (role != Role.Monster)
+        if (transformMimic.Value)
         {
-            enabled = false;
-            isActive = false;
-            Debug.Log($"MonsterRole disabled via UpdateRole (Role: {role})");
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, 1f);
         }
     }
 }

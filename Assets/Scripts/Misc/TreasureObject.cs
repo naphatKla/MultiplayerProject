@@ -151,7 +151,7 @@ public class TreasureObject : NetworkBehaviour
             MonsterRole monsterRole = player.GetComponent<MonsterRole>();
             if (monsterRole != null && monsterRole.IsActive)
             {
-                monsterRole.TranformMimic();
+                monsterRole.TransformMimic();
                 SoundEffectManager.Instance.PlayGlobal3DAtPosition("Mimic", transform.position, 2f,1,30f);
             }
         }

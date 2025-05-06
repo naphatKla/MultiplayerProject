@@ -20,7 +20,7 @@ namespace Core.MovementSystems
                                           NetworkVariableWritePermission.Owner);
         [SerializeField] private FieldOfView fieldOfView;
         [SerializeField] private Transform origin;
-        [SerializeField]  private NetworkVariable<bool> isMonster = new NetworkVariable<bool>(false,
+        [SerializeField] private NetworkVariable<bool> isMonster = new NetworkVariable<bool>(false,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Owner);
         
@@ -33,11 +33,16 @@ namespace Core.MovementSystems
         [Header("Components")]
         [SerializeField] private Animator animator;
 
+        // Default scale and position for player
+        private Vector3 defaultScale;
+        private Vector3 defaultPositionOffset = Vector3.zero;
+
         public override void OnNetworkSpawn()
         {
             if (!IsOwner) return;
             inputReader.MoveEvent += SetMoveInput;
             inputReader.MouseMoveEvent += PlayerFacingHandler;
+            defaultScale = origin.localScale;
         }
 
         public override void OnNetworkDespawn()
@@ -75,7 +80,6 @@ namespace Core.MovementSystems
             UpdateFacingServerRpc(shouldFaceLeft);
         }
 
-        
         public void TransformToMonster(bool isMonster)
         {
             if (!IsOwner) return;
@@ -83,24 +87,28 @@ namespace Core.MovementSystems
             IsMonster.Value = isMonster;
             if (isMonster)
             {
-                Vector3 newPosition = transform.position + new Vector3(0.1f, -0.5f, 0);
-                Vector3 newScale = new Vector3(4, 4, 1);
-                TransformToMonsterServerRpc(newPosition, newScale);
+                // Transform to monster
+                Vector3 newScale = new Vector3(4f, 4f, 1f);
+                TransformToMonsterServerRpc(newScale);
+            }
+            else
+            {
+                // Revert to player
+                Vector3 newScale = defaultScale;
+                TransformToMonsterServerRpc(newScale);
             }
         }
 
         [ServerRpc]
-        private void TransformToMonsterServerRpc(Vector3 newPosition, Vector3 newScale)
+        private void TransformToMonsterServerRpc(Vector3 newScale)
         {
-            origin.position = newPosition;
             origin.localScale = newScale;
-            TransformToMonsterClientRpc(newPosition, newScale);
+            TransformToMonsterClientRpc(newScale);
         }
 
         [ClientRpc]
-        private void TransformToMonsterClientRpc(Vector3 newPosition, Vector3 newScale)
+        private void TransformToMonsterClientRpc(Vector3 newScale)
         {
-            origin.position = newPosition;
             origin.localScale = newScale;
         }
         

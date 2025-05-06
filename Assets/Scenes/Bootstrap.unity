@@ -1367,6 +1367,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 797d4746879d9c841b449b7943375be2, type: 3}
   - name: Objective
     clip: {fileID: 8300000, guid: 3ede00bcac194c6488588be93d730fcb, type: 3}
+  - name: Collect
+    clip: {fileID: 8300000, guid: 3ede00bcac194c6488588be93d730fcb, type: 3}
   globalVolume: 1
 --- !u!4 &1693633954
 Transform:

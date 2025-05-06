@@ -95,10 +95,7 @@ public class MonsterRole : NetworkBehaviour
                 UpdateBloodText();
             }
         }
-        else
-        {
-            Debug.LogWarning("bloodCountUIPrefab not assigned in MonsterRole.");
-        }
+
 
         // Initialize Transform Ready UI
         if (transformReadyUIPrefab != null)
@@ -244,8 +241,8 @@ public class MonsterRole : NetworkBehaviour
         {
             playerMovement.TransformToMonster(true);
         }
-
-
+        
+        SoundEffectManager.Instance.PlayGlobal3DAtPosition("Mimic", transform.position, 2f, 1f, 10f);
         TransformMimicServerRpc();
         if (transformReadyText != null)
         {

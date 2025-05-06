@@ -10,14 +10,6 @@ public class Collectible : NetworkBehaviour
 
     private NetworkVariable<bool> canInteract = new NetworkVariable<bool>(true);
 
-    private void Awake()
-    {
-        canInteract.OnValueChanged += (oldValue, newValue) =>
-        {
-            Debug.Log($"Collectible {collectibleName} canInteract changed from {oldValue} to {newValue}");
-        };
-    }
-
     private void Update()
     {
         if (!IsClient || !canInteract.Value) return;

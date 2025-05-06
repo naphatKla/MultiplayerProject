@@ -41,15 +41,14 @@ public class Collectible : NetworkBehaviour
         float distance = Vector3.Distance(player.transform.position, transform.position);
         if (distance <= collectionRange && UnityEngine.Input.GetKeyDown(collectKey))
         {
-            CollectServerRpc();
+            if (!canInteract.Value) return;
+            CollectServerRpc(monsterRole.OwnerClientId);
         }
     }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void CollectServerRpc(ServerRpcParams serverRpcParams = default)
+    
+    [Rpc(SendTo.Server)]
+    private void CollectServerRpc(ulong clientId)
     {
-        if (!canInteract.Value) { return; }
-        ulong clientId = serverRpcParams.Receive.SenderClientId;
         if (!NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId)) { return; }
 
         GameObject player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
@@ -61,7 +60,7 @@ public class Collectible : NetworkBehaviour
 
         PerformCollection(clientId);
     }
-
+    
     private void PerformCollection(ulong clientId)
     {
         canInteract.Value = false;

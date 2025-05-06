@@ -10,7 +10,7 @@ public class SpawnPoint : MonoBehaviour
         if (!spawnPoints.Contains(this))
         {
             spawnPoints.Add(this);
-            Debug.Log($"SpawnPoint added at {transform.position}. Total spawn points: {spawnPoints.Count}");
+            //Debug.Log($"SpawnPoint added at {transform.position}. Total spawn points: {spawnPoints.Count}");
         }
     }
 
@@ -18,7 +18,7 @@ public class SpawnPoint : MonoBehaviour
     {
         if (spawnPoints.Remove(this))
         {
-            Debug.Log($"SpawnPoint removed at {transform.position}. Total spawn points: {spawnPoints.Count}");
+            //Debug.Log($"SpawnPoint removed at {transform.position}. Total spawn points: {spawnPoints.Count}");
         }
     }
 

@@ -273,7 +273,7 @@ public class MonsterRole : NetworkBehaviour
         ResetCollectedItemsServerRpc();
     }
 
-    [ServerRpc]
+    [Rpc(SendTo.Server)]
     public void CollectItemServerRpc()
     {
         collectedItems.Value++;

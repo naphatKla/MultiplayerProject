@@ -927,8 +927,8 @@ MonoBehaviour:
   inputReader: {fileID: 11400000, guid: 0e0079011af07bb479718e2e29be1b85, type: 2}
   attackDamage: 20
   monsterAttackDamage: 50
-  attackSize: {x: 2.04, y: 1.33}
-  offset: {x: 0.9, y: -0.32}
+  attackSize: {x: 1.3, y: 0.88}
+  offset: {x: 0.6, y: -0.47}
   targetLayer:
     serializedVersion: 2
     m_Bits: 4104
@@ -1065,7 +1065,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.11010456, y: -0.4302463}
+  m_Offset: {x: -0.088218786, y: -0.47839522}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -1075,7 +1075,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.5746057, y: 0.988788}
+  m_Size: {x: 0.5133255, y: 0.61235225}
   m_EdgeRadius: 0
 --- !u!114 &-2957016229111639833
 MonoBehaviour:
@@ -1204,6 +1204,7 @@ MonoBehaviour:
   bloodCountUIPrefab: {fileID: 5129115443384734843, guid: 511326cde27f7044ab6753e2b77e3955, type: 3}
   transformReadyUIPrefab: {fileID: 6532675772569292029, guid: c3925c47739870945adfb09f3c2d6326, type: 3}
   transformationSlider: {fileID: 8243031039452633879}
+  isTransforming: 0
   transformMimic:
     m_InternalValue: 0
 --- !u!114 &8237215205989701037

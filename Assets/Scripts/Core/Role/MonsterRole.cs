@@ -229,8 +229,7 @@ public class MonsterRole : NetworkBehaviour
     public void TransformMimic()
     {
         if (!IsOwner) return;
-
-        transformMimic.Value = true;
+        
         var healthSystem = GetComponent<Core.HealthSystems.HealthSystem>();
         if (healthSystem != null)
         {
@@ -253,8 +252,7 @@ public class MonsterRole : NetworkBehaviour
     public void RevertToPlayer()
     {
         if (!IsOwner) return;
-
-        transformMimic.Value = false;
+        
         var healthSystem = GetComponent<Core.HealthSystems.HealthSystem>();
         if (healthSystem != null)
         {
@@ -310,6 +308,7 @@ public class MonsterRole : NetworkBehaviour
     {
         Debug.Log($"TransformMimicServerRpc called for {gameObject.name}");
         TransformMimicClientRpc();
+        transformMimic.Value = true;
     }
 
     [ClientRpc]
@@ -328,6 +327,7 @@ public class MonsterRole : NetworkBehaviour
     [ServerRpc]
     private void RevertToPlayerServerRpc()
     {
+        transformMimic.Value = false;
         RevertToPlayerClientRpc();
     }
 

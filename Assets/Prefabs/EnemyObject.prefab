@@ -278,7 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  <MaxHealth>k__BackingField: 100
+  maxHealth: 100
   currentHealth:
     m_InternalValue: 0
   disableOnDown: []
@@ -313,13 +313,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  attackDamage: 10
+  attackDamage: 5
   attackCooldown: 1
   targetLayer:
     serializedVersion: 2
     m_Bits: 8
-  attackSize: {x: 2.22, y: 1.01}
-  attackOffset: {x: 0.42, y: -0.03}
+  attackSize: {x: 1.26, y: 0.84}
+  attackOffset: {x: 0.59, y: -0.21}
   attackIndex: 1
   spriteRenderer: {fileID: 1646376996182100262}
   animator: {fileID: 991375289513389109}

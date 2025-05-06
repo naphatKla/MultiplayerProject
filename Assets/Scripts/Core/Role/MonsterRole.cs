@@ -72,6 +72,7 @@ public class MonsterRole : NetworkBehaviour
                 }
                 else
                 {
+                    Debug.Log($"Client {clientId} is Monster. Initializing UI for IsOwner: {IsOwner}.");
                     if (IsOwner)
                     {
                         InitializeUI();
@@ -96,8 +97,7 @@ public class MonsterRole : NetworkBehaviour
     private void InitializeUI()
     {
         if (!IsOwner) return;
-
-        Debug.Log($"Initializing UI for Client {NetworkManager.Singleton.LocalClientId}");
+        
         // Initialize Blood Count UI
         if (bloodCountUIPrefab != null)
         {

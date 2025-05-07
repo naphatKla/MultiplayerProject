@@ -71,7 +71,6 @@ public class Collectible : NetworkBehaviour
     private void DeactivateCollectibleClientRpc()
     {
         SetCollectibleVisible(false);
-        SoundEffectManager.Instance.PlayGlobal3DAtPosition("Collect", transform.position, 2f, 1f, 10f);
     }
 
     [ClientRpc]

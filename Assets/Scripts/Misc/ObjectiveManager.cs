@@ -71,7 +71,7 @@ public class ObjectiveManager : NetworkBehaviour
     private void Update()
     {
         if (UnityEngine.Input.GetKeyDown(KeyCode.R)) IncreaseValueServerRpc();
-        if (IsServer) UpdateMaxObjective();
+        if (IsServer) UpdateMaxObjective(); CheckObjectiveIsDone();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -100,6 +100,7 @@ public class ObjectiveManager : NetworkBehaviour
         maxObjective.Value = newMax;
 
         if (objective.Value > maxObjective.Value) objective.Value = maxObjective.Value;
+        CheckObjectiveIsDone();
     }
 
     private void ActivateObjectiveObjects()

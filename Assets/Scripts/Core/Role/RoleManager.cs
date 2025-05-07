@@ -221,7 +221,7 @@ public class RoleManager : NetworkSingleton<RoleManager>
         Debug.Log($"Active Players: {activePlayerCount}, Explorers: {activeExplorerCount}, Monsters: {activeMonsterCount}");
         
         // Check for Monster (Mimic) win condition
-        if (activeMonsterCount == 1 && activeExplorerCount == 0)
+        if (activeMonsterCount >= 1 && activeExplorerCount == 0)
         {
             var allExplorersInactive = true;
             foreach (var kvp in PlayerRoles)
@@ -235,7 +235,7 @@ public class RoleManager : NetworkSingleton<RoleManager>
             if (allExplorersInactive) NotifyMimicWinClientRpc();
         }
         // Check for Explorer win condition
-        else if (activeMonsterCount == 0 && activeExplorerCount > 0)
+        else if (activeMonsterCount == 0 && activeExplorerCount >= 0)
         {
             var allMonstersInactive = true;
             foreach (var kvp in PlayerRoles)

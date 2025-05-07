@@ -70,7 +70,7 @@ public class ObjectiveManager : NetworkBehaviour
 
     private void Update()
     {
-        if (UnityEngine.Input.GetKeyDown(KeyCode.R)) IncreaseValueServerRpc();
+        if (UnityEngine.Input.GetKeyDown(KeyCode.O)) IncreaseValueServerRpc();
         if (IsServer) UpdateMaxObjective(); CheckObjectiveIsDone();
     }
 

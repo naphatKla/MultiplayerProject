@@ -16,11 +16,14 @@ public class ObjectiveManager : NetworkBehaviour
     [SerializeField] private List<GameObject> objectsToActivateOnComplete = new();
 
     [SerializeField] private TMP_Text objectiveText;
+    
+    private bool hasActivated = false;
 
     public bool CheckObjectiveIsDone()
     {
         if (objective.Value >= maxObjective.Value)
         {
+            hasActivated = true;
             ActivateObjectiveObjects();
             return true;
         }
@@ -113,9 +116,8 @@ public class ObjectiveManager : NetworkBehaviour
                 if (networkObject != null)
                 {
                     var obj = networkObject.gameObject;
-                    bool newState = !obj.activeSelf;
-                    obj.SetActive(newState);
-                    ActivateObjectClientRpc(networkId, newState);
+                    obj.SetActive(false);
+                    ActivateObjectClientRpc(networkId, false);
                 }
             }
         }
